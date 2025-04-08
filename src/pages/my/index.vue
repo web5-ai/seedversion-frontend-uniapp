@@ -20,7 +20,7 @@
       <view class="section">
         <view class="section-title">我的检测</view>
         <view class="grid-menu">
-          <view class="grid-item" @click="navigateTo('/pages/history/index')">
+          <view class="grid-item" @click="switchToHistoryTab">
             <view class="grid-icon history-icon">
               <image src="/static/icons/history.svg" mode="aspectFit" class="icon-image" alt="历史记录图标"></image>
             </view>
@@ -204,10 +204,37 @@ export default {
       });
     },
     
+    // 切换到历史记录Tab
+    switchToHistoryTab() {
+      uni.switchTab({
+        url: '/pages/history/index'
+      });
+    },
+    
     // 跳转到指定页面
     navigateTo(url) {
+      // 处理收藏功能（开发中）
+      if (url.includes('/pages/favorite/index')) {
+        this.showDevelopingFeature('收藏');
+        return;
+      }
+      
+      // 其他页面正常跳转
       uni.navigateTo({
-        url: url
+        url: url,
+        fail: (err) => {
+          console.error('页面跳转失败:', err);
+          this.showDevelopingFeature('该功能');
+        }
+      });
+    },
+    
+    // 显示功能开发中的提示
+    showDevelopingFeature(featureName) {
+      uni.showToast({
+        title: `${featureName}功能开发中，敬请期待`,
+        icon: 'none',
+        duration: 2000
       });
     },
     
