@@ -207,8 +207,19 @@ export default {
           icon: 'success',
           duration: 1500,
           success: () => {
-            // 简单显示登录成功，不跳转页面
-            console.log('登录成功');
+            // 登录成功后跳转到主页（检测页面）
+            setTimeout(() => {
+              uni.switchTab({
+                url: '/pages/index/index',
+                fail: (err) => {
+                  console.error('跳转到主页失败:', err);
+                  // 如果跳转失败，尝试使用redirectTo
+                  uni.redirectTo({
+                    url: '/pages/index/index'
+                  });
+                }
+              });
+            }, 1500); // 等待提示显示完毕后再跳转
           }
         });
         
