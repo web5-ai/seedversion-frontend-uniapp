@@ -10,64 +10,67 @@
       <!-- 表单区域 -->
       <view class="form-area">
         <!-- 手机号输入框 -->
-        <form-input
-          v-model="phone"
-          type="number"
-          placeholder="请输入手机号"
-          :error="phoneError"
-          error-message="请输入正确的手机号"
-          aria-label="手机号输入框"
-          @input="validatePhone"
-          maxlength="11"
-        />
+        <view class="input-wrapper">
+          <input 
+            class="input-field"
+            :class="{'input-error': phoneError}"
+            type="number" 
+            maxlength="11"
+            placeholder="请输入手机号" 
+            v-model="phone"
+            @input="validatePhone"
+          />
+          <text v-if="phoneError" class="error-text">请输入正确的手机号</text>
+        </view>
         
         <!-- 验证码输入区域 -->
-        <view class="verify-code-area">
-          <form-input
-            class="verify-code-input"
-            v-model="verifyCode"
-            type="number"
-            placeholder="请输入验证码"
-            :error="codeError"
-            error-message="请输入6位验证码"
-            aria-label="验证码输入框"
-            @input="validateCode"
-            maxlength="6"
-          />
-          <code-button 
-            :disabled="!isPhoneValid"
-            :cooldown="cooldown"
+        <view class="code-area">
+          <view class="input-wrapper flex-1">
+            <input 
+              class="input-field"
+              :class="{'input-error': codeError}"
+              type="number" 
+              maxlength="6"
+              placeholder="请输入验证码" 
+              v-model="verifyCode"
+              @input="validateCode"
+            />
+            <text v-if="codeError" class="error-text">请输入6位验证码</text>
+          </view>
+          <view 
+            class="code-button"
+            :class="{'btn-disabled': !isPhoneValid || cooldown > 0}"
             @click="getVerifyCode"
-          />
+          >
+            <text>{{ cooldown > 0 ? `${cooldown}秒后重试` : '获取验证码' }}</text>
+          </view>
         </view>
         
         <!-- 登录按钮 -->
-        <view class="button-wrapper">
-          <common-button 
-            :loading="isSubmitting"
-            :disabled="!canSubmit"
-            @click="handleLogin"
-          >登录/注册</common-button>
+        <view 
+          class="login-button"
+          :class="{'button-disabled': !canSubmit}"
+          @click="handleLogin"
+        >
+          <view class="loading-spinner" v-if="isSubmitting"></view>
+          <text v-else>登录/注册</text>
         </view>
       </view>
       
       <!-- 协议文本 -->
       <view class="agreement-wrapper">
-        <agreement-text
-          @user-agreement="viewTerms('user')"
-          @privacy-agreement="viewTerms('privacy')"
-        />
+        <view class="agreement-area">
+          <text class="agreement-text">登录即表示同意 </text>
+          <text class="agreement-link" @click="viewTerms('user')">《用户协议》</text>
+          <text class="agreement-text"> 和 </text>
+          <text class="agreement-link" @click="viewTerms('privacy')">《隐私条款》</text>
+        </view>
       </view>
     </view>
   </view>
 </template>
 
 <script>
-import FormInput from '../../components/form/FormInput.vue';
-import CodeButton from '../../components/form/CodeButton.vue';
-import CommonButton from '../../components/common/Button.vue';
-import AgreementText from '../../components/common/AgreementText.vue';
-
 // 防抖函数
 function debounce(fn, delay) {
   let timer = null;
@@ -82,12 +85,6 @@ function debounce(fn, delay) {
 }
 
 export default {
-  components: {
-    FormInput,
-    CodeButton,
-    CommonButton,
-    AgreementText
-  },
   data() {
     return {
       phone: '',
@@ -129,16 +126,20 @@ export default {
         this.codeError = true;
       }
     },
-    getVerifyCode: debounce(function() {
-      // 如果手机号无效，不执行操作
-      if (!this.isPhoneValid) {
-        this.phoneError = true;
-        uni.showToast({
-          title: '请输入正确的手机号',
-          icon: 'none'
-        });
+    getVerifyCode() {
+      // 如果手机号无效或正在倒计时，不执行操作
+      if (!this.isPhoneValid || this.cooldown > 0) {
+        if (!this.isPhoneValid) {
+          this.phoneError = true;
+          uni.showToast({
+            title: '请输入正确的手机号',
+            icon: 'none'
+          });
+        }
         return;
       }
+      
+      console.log('获取验证码', this.phone);
       
       // 开始倒计时
       this.cooldown = 60;
@@ -154,8 +155,8 @@ export default {
         title: '验证码已发送',
         icon: 'success'
       });
-    }, 300),
-    handleLogin: debounce(function() {
+    },
+    handleLogin() {
       // 验证输入
       this.validatePhone();
       this.validateCode();
@@ -179,6 +180,8 @@ export default {
       // 防止重复提交
       if (this.isSubmitting) return;
       
+      console.log('登录', this.phone, this.verifyCode);
+      
       // 设置提交状态
       this.isSubmitting = true;
       
@@ -191,7 +194,12 @@ export default {
         };
         
         // 模拟登录成功
-        this.$store.commit('setUser', userInfo);
+        try {
+          this.$store.commit('setUser', userInfo);
+        } catch (e) {
+          console.error('存储用户信息失败:', e);
+        }
+        
         uni.setStorageSync('token', 'mock_token_' + Date.now());
         
         uni.showToast({
@@ -199,18 +207,15 @@ export default {
           icon: 'success',
           duration: 1500,
           success: () => {
-            setTimeout(() => {
-              uni.switchTab({
-                url: '/pages/hello/index'
-              });
-            }, 1500);
+            // 简单显示登录成功，不跳转页面
+            console.log('登录成功');
           }
         });
         
         // 重置提交状态
         this.isSubmitting = false;
       }, 1000); // 模拟网络请求延迟
-    }, 300),
+    },
     viewTerms(type) {
       // 查看协议
       const title = type === 'user' ? '用户协议' : '隐私政策';
@@ -282,19 +287,112 @@ export default {
   width: 100%;
 }
 
-.verify-code-area {
-  display: flex;
+.input-wrapper {
+  margin-bottom: 24px;
+  position: relative;
   width: 100%;
-  margin-bottom: 12px;
 }
 
-.verify-code-input {
+.input-field {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #E8E8E8;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  color: #333333;
+}
+
+.input-field:focus {
+  border-color: #55C353;
+}
+
+.input-error {
+  border-color: #FF5252 !important;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #FF5252;
+  position: absolute;
+  left: 0;
+  bottom: -20px;
+}
+
+.code-area {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.flex-1 {
   flex: 1;
   margin-right: 12px;
 }
 
-.button-wrapper {
-  margin-top: 8px;
+.code-button {
+  width: 120px;
+  min-width: 120px;
+  height: 48px;
+  border: 1px solid #E8E8E8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #333333;
+  background-color: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+.code-button:active:not(.btn-disabled) {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.login-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: #55C353;
+  color: #FFFFFF;
+  font-size: 16px;
+  margin-top: 32px;
+}
+
+.button-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.login-button:active:not(.button-disabled) {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #FFFFFF;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* 协议区域 */
@@ -303,5 +401,23 @@ export default {
   bottom: 40px;
   left: 0;
   right: 0;
+}
+
+.agreement-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.agreement-text {
+  font-size: 12px;
+  color: #999999;
+}
+
+.agreement-link {
+  font-size: 12px;
+  color: #3B7AEB;
 }
 </style> 

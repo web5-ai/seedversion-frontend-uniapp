@@ -19,6 +19,10 @@ const store = createStore({
       state.user.isLoggedIn = true
       state.user.info = userInfo
     },
+    SET_USER_INFO(state, userInfo) {
+      state.user.isLoggedIn = true
+      state.user.info = userInfo
+    },
     clearUser(state) {
       state.user.isLoggedIn = false
       state.user.info = null

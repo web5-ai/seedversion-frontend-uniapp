@@ -9,7 +9,11 @@ export function createApp() {
   const app = createSSRApp(App)
   
   // 使用Vuex
-  app.use(store)
+  try {
+    app.use(store)
+  } catch (e) {
+    console.error('Vuex 加载失败:', e);
+  }
   
   return {
     app

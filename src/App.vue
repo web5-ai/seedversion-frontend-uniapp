@@ -1,9 +1,6 @@
 <template>
   <view>
-    <page-head v-if="false"></page-head>
-    <view class="content">
-      <router-view></router-view>
-    </view>
+    <!-- UniApp不需要router-view，页面会自动加载 -->
   </view>
 </template>
 
@@ -12,10 +9,14 @@ export default {
   onLaunch: function() {
     console.log('App Launch');
     // 检查登录状态并保存到vuex
-    const token = uni.getStorageSync('token');
-    if (token) {
-      // 如果有token，获取用户信息
-      this.getUserInfo();
+    try {
+      const token = uni.getStorageSync('token');
+      if (token) {
+        // 如果有token，获取用户信息
+        this.getUserInfo();
+      }
+    } catch (e) {
+      console.error('启动检查登录状态失败:', e);
     }
   },
   onShow: function() {
@@ -35,7 +36,11 @@ export default {
       };
       
       // 将用户信息存储到Vuex
-      this.$store.commit('SET_USER_INFO', userInfo);
+      try {
+        this.$store.commit('SET_USER_INFO', userInfo);
+      } catch (e) {
+        console.error('存储用户信息失败:', e);
+      }
     }
   }
 }

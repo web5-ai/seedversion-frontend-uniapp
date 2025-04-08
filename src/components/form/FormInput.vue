@@ -4,7 +4,7 @@
       class="input-field"
       :class="{'input-error': error}"
       :type="type"
-      :value="value"
+      :value="modelValue"
       :placeholder="placeholder"
       :maxlength="maxlength"
       @input="handleInput"
@@ -18,8 +18,8 @@
 export default {
   name: 'FormInput',
   props: {
-    // 输入框的值
-    value: {
+    // 输入框的值 (Vue 3 v-model 绑定)
+    modelValue: {
       type: [String, Number],
       default: ''
     },
@@ -56,7 +56,9 @@ export default {
   },
   methods: {
     handleInput(e) {
-      // 将输入内容通过input事件发送给父组件
+      // 将输入内容通过update:modelValue事件发送给父组件 (Vue 3 v-model)
+      this.$emit('update:modelValue', e.target.value);
+      // 额外触发input事件用于向上兼容
       this.$emit('input', e.target.value);
     }
   }
