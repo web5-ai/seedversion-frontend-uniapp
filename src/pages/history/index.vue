@@ -26,58 +26,25 @@
         </view>
       </view>
       
-      <!-- 检测记录列表 -->
-      <view class="history-list">
-        <view 
-          class="history-item" 
-          v-for="(item, index) in filteredRecords" 
-          :key="index"
-          @click="viewDetail(item)"
-        >
-          <view class="history-image" :style="{ backgroundColor: '#e0f2e0' }">
-            <image src="/static/images/canola.svg" mode="aspectFit" class="plant-icon" alt="油菜籽图标"></image>
-          </view>
-          <view class="history-info">
-            <view class="history-header">
-              <text class="history-date">{{ item.date }}</text>
-              <text class="history-time">{{ item.time }}</text>
-            </view>
-            <view class="history-data">
-              <view class="data-item">
-                <text class="data-label">油酸：</text>
-                <text class="data-value oil-value">{{ item.oilAcid }}</text>
-              </view>
-              <view class="data-item">
-                <text class="data-label">亚油酸：</text>
-                <text class="data-value linoleic-value">{{ item.linoleicAcid }}</text>
-              </view>
-              <view class="data-item">
-                <text class="data-label">品质评级：</text>
-                <text class="data-value quality-value">{{ item.quality }}</text>
-              </view>
-            </view>
-          </view>
-          <view class="history-arrow">
-            <text class="arrow-icon">›</text>
-          </view>
-        </view>
-      </view>
-      
-      <!-- 空状态 -->
-      <view class="empty-state" v-if="filteredRecords.length === 0">
-        <image src="/static/icons/history.svg" mode="aspectFit" class="empty-icon" alt="历史记录图标"></image>
-        <text class="empty-text">暂无{{ filterLabel }}检测记录</text>
-      </view>
+      <!-- 使用记录列表组件 -->
+      <record-list 
+        :records="filteredRecords" 
+        :show-time="true"
+        @item-click="viewDetail"
+        :empty-text="'暂无' + filterLabel + '检测记录'"
+      />
     </view>
   </view>
 </template>
 
 <script>
 import IconSvg from '@/components/common/IconSvg.vue';
+import RecordList from '@/components/common/RecordList.vue';
 
 export default {
   components: {
-    IconSvg
+    IconSvg,
+    RecordList
   },
   data() {
     return {
@@ -241,108 +208,5 @@ export default {
   color: #4CAF50;
   background-color: rgba(76, 175, 80, 0.1);
   font-weight: 500;
-}
-
-/* 历史记录列表 */
-.history-list {
-  flex: 1;
-}
-
-.history-item {
-  display: flex;
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  align-items: center;
-}
-
-.history-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 4px;
-  margin-right: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.plant-icon {
-  width: 40px;
-  height: 40px;
-}
-
-.history-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.history-date {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
-.history-time {
-  font-size: 12px;
-  color: #999;
-}
-
-.history-data {
-  display: flex;
-  flex-direction: column;
-}
-
-.data-item {
-  display: flex;
-  margin-bottom: 4px;
-}
-
-.data-label {
-  font-size: 13px;
-  color: #666;
-}
-
-.data-value {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.oil-value, .linoleic-value, .quality-value {
-  color: #4CAF50;
-}
-
-.history-arrow {
-  margin-left: 8px;
-}
-
-.arrow-icon {
-  font-size: 20px;
-  color: #ccc;
-}
-
-/* 空状态 */
-.empty-state {
-  margin-top: 60px;
-  text-align: center;
-  color: #999;
-}
-
-.empty-icon {
-  width: 60px;
-  height: 60px;
-  margin-bottom: 15px;
-}
-
-.empty-text {
-  font-size: 14px;
 }
 </style> 

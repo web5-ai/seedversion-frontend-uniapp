@@ -21,34 +21,12 @@
       <view class="recent-section">
         <text class="section-title">最近检测</text>
         
-        <!-- 检测记录列表 -->
-        <view class="record-list">
-          <view 
-            class="record-item" 
-            v-for="(item, index) in recentRecords" 
-            :key="index"
-            @click="viewDetail(item)"
-          >
-            <view class="record-image" :style="{ backgroundColor: '#e0f2e0' }">
-              <image src="/static/images/canola.svg" mode="aspectFit" class="plant-icon" alt="油菜籽图标"></image>
-            </view>
-            <view class="record-info">
-              <text class="record-date">{{ item.date }}</text>
-              <view class="record-data">
-                <text class="record-label">油酸：</text>
-                <text class="record-value oil-value">{{ item.oilAcid }}</text>
-              </view>
-              <view class="record-data">
-                <text class="record-label">亚油酸：</text>
-                <text class="record-value linoleic-value">{{ item.linoleicAcid }}</text>
-              </view>
-              <view class="record-data">
-                <text class="record-label">品质评级：</text>
-                <text class="record-value quality-value">{{ item.quality }}</text>
-              </view>
-            </view>
-          </view>
-        </view>
+        <!-- 使用记录列表组件 -->
+        <record-list 
+          :records="recentRecords" 
+          @item-click="viewDetail"
+          empty-text="暂无检测记录"
+        />
         
         <!-- 使用提示 -->
         <view class="tips-section">
@@ -62,10 +40,12 @@
 
 <script>
 import IconSvg from '@/components/common/IconSvg.vue';
+import RecordList from '@/components/common/RecordList.vue';
 
 export default {
   components: {
-    IconSvg
+    IconSvg,
+    RecordList
   },
   data() {
     return {
@@ -285,66 +265,6 @@ export default {
   font-weight: 500;
   color: #333;
   margin-bottom: 10px;
-}
-
-/* 检测记录列表 */
-.record-list {
-  margin-bottom: 15px;
-}
-
-.record-item {
-  display: flex;
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.record-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
-  margin-right: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.plant-icon {
-  width: 40px;
-  height: 40px;
-}
-
-.record-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.record-date {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 6px;
-}
-
-.record-data {
-  display: flex;
-  margin-bottom: 4px;
-}
-
-.record-label {
-  font-size: 14px;
-  color: #666;
-}
-
-.record-value {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.oil-value, .linoleic-value, .quality-value {
-  color: #4CAF50;
 }
 
 /* 提示区域 */
