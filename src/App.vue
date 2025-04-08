@@ -1,6 +1,6 @@
 <template>
   <view>
-    <!-- UniApp不需要router-view，页面会自动加载 -->
+    <!-- 页面内容会自动加载 -->
   </view>
 </template>
 
@@ -50,13 +50,17 @@ export default {
 /* 全局样式 */
 page {
   min-height: 100%;
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+view {
+  box-sizing: border-box;
 }
 
 /* 重置一些基础样式 */

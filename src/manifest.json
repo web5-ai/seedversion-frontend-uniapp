@@ -77,5 +77,34 @@
   "vueVersion": "3",
   "uniStatistics": {
     "enable": false
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "height": "50px",
+    "fontSize": "10px",
+    "iconWidth": "24px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "检测",
+        "iconPath": "static/icons/detect.svg",
+        "selectedIconPath": "static/icons/detect-active.svg"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "历史记录",
+        "iconPath": "static/icons/history.svg",
+        "selectedIconPath": "static/icons/history-active.svg"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的",
+        "iconPath": "static/icons/user.svg",
+        "selectedIconPath": "static/icons/user-active.svg"
+      }
+    ]
   }
 } 

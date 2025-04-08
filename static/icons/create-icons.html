@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>创建简单图标</title>
+  <style>
+    .icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #CCCCCC;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
+    }
+    .icon.active {
+      background-color: #4CAF50;
+    }
+    .icon-text {
+      font-size: 12px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <p>这是一个创建简单图标的页面。请保存以下图标到正确位置：</p>
+  
+  <h3>历史记录图标</h3>
+  <div class="icon">
+    <span class="icon-text">H</span>
+  </div>
+  <div class="icon active">
+    <span class="icon-text">H</span>
+  </div>
+  
+  <h3>检测图标</h3>
+  <div class="icon">
+    <span class="icon-text">D</span>
+  </div>
+  <div class="icon active">
+    <span class="icon-text">D</span>
+  </div>
+  
+  <h3>用户图标</h3>
+  <div class="icon">
+    <span class="icon-text">U</span>
+  </div>
+  <div class="icon active">
+    <span class="icon-text">U</span>
+  </div>
+  
+  <p>使用浏览器的截图功能，截取每个图标并保存为PNG格式。</p>
+  <p>文件名应为：</p>
+  <ul>
+    <li>history.png 和 history-active.png</li>
+    <li>detect.png 和 detect-active.png</li>
+    <li>user.png 和 user-active.png</li>
+  </ul>
+</body>
+</html> 

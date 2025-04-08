@@ -1,16 +1,36 @@
 {
   "pages": [
     {
-      "path": "pages/login/index",
+      "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "登录",
+        "navigationBarTitleText": "油菜籽成分检测系统",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
         "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/hello/index",
+      "path": "pages/history/index",
       "style": {
-        "navigationBarTitleText": "油菜籽成分检测系统"
+        "navigationBarTitleText": "历史记录",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/my/index",
+      "style": {
+        "navigationBarTitleText": "个人中心",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
       }
     }
   ],
@@ -19,5 +39,34 @@
     "navigationBarTitleText": "油菜籽成分检测系统",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "height": "50px",
+    "fontSize": "10px",
+    "iconWidth": "24px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "检测",
+        "iconPath": "static/icons/detect.svg",
+        "selectedIconPath": "static/icons/detect-active.svg"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "历史记录",
+        "iconPath": "static/icons/history.svg",
+        "selectedIconPath": "static/icons/history-active.svg"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的",
+        "iconPath": "static/icons/user.svg",
+        "selectedIconPath": "static/icons/user-active.svg"
+      }
+    ]
   }
 } 
