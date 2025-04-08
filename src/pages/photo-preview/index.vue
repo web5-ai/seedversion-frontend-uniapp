@@ -1,22 +1,51 @@
 <template>
   <view class="page-container">
     <!-- 图片预览区域 -->
-    <view class="preview-container">
-      <image 
-        :src="imagePath" 
-        mode="aspectFit" 
-        class="preview-image"
-      />
-      
-      <!-- 检测中状态显示 -->
-      <view v-if="analyzing" class="analyzing-overlay">
-        <view class="analyzing-content">
-          <view class="loading-icon">
-            <text class="loading-dot"></text>
-            <text class="loading-dot"></text>
-            <text class="loading-dot"></text>
+    <view class="preview-wrapper">
+      <view class="preview-container">
+        <image 
+          :src="imagePath" 
+          mode="aspectFit" 
+          class="preview-image"
+        />
+        
+        <!-- 检测中状态显示 -->
+        <view v-if="analyzing" class="analyzing-overlay">
+          <view class="analyzing-content">
+            <view class="loading-icon">
+              <text class="loading-dot"></text>
+              <text class="loading-dot"></text>
+              <text class="loading-dot"></text>
+            </view>
+            <text class="analyzing-text">正在分析...</text>
           </view>
-          <text class="analyzing-text">正在分析...</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 拍照提示区域 -->
+    <view class="photo-tips" v-if="!hasResult && source !== 'detail'">
+      <view class="tips-header">
+        <image src="/static/icons/info.svg" class="tip-icon" alt="提示图标" />
+        <text class="tips-title">拍照注意事项</text>
+      </view>
+      
+      <view class="tips-list">
+        <view class="tip-item">
+          <text class="tip-number">1</text>
+          <text class="tip-text">光线充足：请在明亮环境下拍摄，避免阴影遮挡</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-number">2</text>
+          <text class="tip-text">取样完整：确保油菜籽在画面中完整显示且清晰可见</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-number">3</text>
+          <text class="tip-text">保持稳定：拍摄时请保持手机稳定，避免晃动模糊</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-number">4</text>
+          <text class="tip-text">背景单一：尽量选择纯色背景，减少干扰因素</text>
         </view>
       </view>
     </view>
@@ -50,8 +79,8 @@
       </view>
     </view>
     
-    <!-- 操作按钮区域 -->
-    <view class="action-container">
+    <!-- 操作按钮区域（悬浮） -->
+    <view class="floating-action-container">
       <view class="action-buttons">
         <button 
           class="action-button cancel-button" 
@@ -72,17 +101,6 @@
           @click="handleSave"
         >保存结果</button>
       </view>
-      
-      <!-- 重新拍照按钮（仅在非详情模式下显示） -->
-      <button 
-        v-if="source !== 'detail'"
-        class="retake-button" 
-        @click="handleRetake"
-        :disabled="analyzing"
-      >
-        <image src="/static/icons/camera.svg" mode="aspectFit" class="retake-icon" alt="相机图标"></image>
-        <text class="retake-text">重新拍照</text>
-      </button>
     </view>
   </view>
 </template>
@@ -200,56 +218,6 @@ export default {
       uni.navigateBack({
         delta: 1
       });
-    },
-    
-    // 重新拍照
-    handleRetake() {
-      uni.showActionSheet({
-        itemList: ['拍照', '从相册选择'],
-        success: res => {
-          if (res.tapIndex === 0) {
-            // 拍照
-            this.takePhoto();
-          } else if (res.tapIndex === 1) {
-            // 从相册选择
-            this.chooseFromAlbum();
-          }
-        }
-      });
-    },
-    
-    // 拍照
-    takePhoto() {
-      uni.chooseImage({
-        count: 1,
-        sourceType: ['camera'],
-        success: res => {
-          this.imagePath = res.tempFilePaths[0];
-          this.hasResult = false;
-          this.result = {
-            oilAcid: '--',
-            linoleicAcid: '--',
-            quality: '--'
-          };
-        }
-      });
-    },
-    
-    // 从相册选择
-    chooseFromAlbum() {
-      uni.chooseImage({
-        count: 1,
-        sourceType: ['album'],
-        success: res => {
-          this.imagePath = res.tempFilePaths[0];
-          this.hasResult = false;
-          this.result = {
-            oilAcid: '--',
-            linoleicAcid: '--',
-            quality: '--'
-          };
-        }
-      });
     }
   }
 }
@@ -262,23 +230,96 @@ export default {
   min-height: 100vh;
   background-color: #f5f5f5;
   width: 100%;
+  position: relative;
+  padding-bottom: 80px; /* 为悬浮按钮预留空间 */
+}
+
+/* 图片预览区域外层容器 */
+.preview-wrapper {
+  padding: 15px;
+  height: 70vh;
 }
 
 /* 图片预览区域 */
 .preview-container {
   position: relative;
-  height: 40vh;
   width: 100%;
-  background-color: #000;
+  height: 100%;
+  background-color: #f8f9fa;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .preview-image {
-  width: 100%;
-  height: 100%;
+  width: 92%;
+  height: 92%;
   object-fit: contain;
+}
+
+/* 拍照提示区域 */
+.photo-tips {
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 0 15px 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tip-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+.tips-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tips-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tip-item {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.tip-number {
+  width: 18px;
+  height: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  flex: 1;
 }
 
 /* 分析中的遮罩和加载动画 */
@@ -292,6 +333,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 12px;
 }
 
 .analyzing-content {
@@ -411,26 +453,35 @@ export default {
   display: block;
 }
 
-/* 操作按钮区域 */
-.action-container {
-  padding: 15px;
-  margin-top: auto;
+/* 悬浮操作按钮区域 */
+.floating-action-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  backdrop-filter: blur(5px);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .action-buttons {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
 }
 
 .action-button {
   flex: 1;
-  height: 40px;
-  line-height: 40px;
+  height: 44px;
+  line-height: 44px;
   text-align: center;
-  border-radius: 20px;
+  border-radius: 22px;
   font-size: 16px;
   margin: 0 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .cancel-button {
@@ -442,27 +493,5 @@ export default {
 .confirm-button {
   background-color: #4CAF50;
   color: #ffffff;
-}
-
-.retake-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  height: 40px;
-  margin-top: 10px;
-}
-
-.retake-icon {
-  width: 18px;
-  height: 18px;
-  margin-right: 6px;
-}
-
-.retake-text {
-  font-size: 14px;
-  color: #666666;
 }
 </style> 
