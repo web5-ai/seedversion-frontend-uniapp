@@ -8,99 +8,74 @@
       <view class="header-title">隐私政策</view>
     </view>
 
-    <!-- 协议内容 -->
+    <!-- 隐私政策内容 -->
     <scroll-view class="content" scroll-y>
       <view class="section">
         <view class="title">油菜籽成分检测系统隐私政策</view>
         <view class="subtitle">最后更新时间：2024年4月8日</view>
         
         <view class="paragraph">
-          <view class="paragraph-title">1. 引言</view>
+          <view class="paragraph-title">1. 信息收集</view>
           <view class="paragraph-content">
-            本隐私政策旨在帮助您了解我们如何收集、使用、存储和分享您的个人信息，以及您享有的相关权利。请您在使用我们的服务前，仔细阅读并了解本隐私政策。
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">2. 信息收集</view>
-          <view class="paragraph-content">
-            2.1 我们收集的信息包括：<br>
+            1.1 我们收集的信息包括：<br>
             - 您提供的油菜籽照片<br>
-            - 检测结果数据<br>
-            - 设备信息（如设备型号、操作系统版本等）<br>
-            - 使用记录（如检测历史、操作日志等）<br>
-            2.2 我们不会收集您的个人身份信息，除非您主动提供。
+            - 设备信息（如设备型号、操作系统版本）<br>
+            - 使用记录（如检测历史、操作日志）<br>
+            1.2 我们不会收集您的个人身份信息，除非您主动提供。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">3. 信息使用</view>
+          <view class="paragraph-title">2. 信息使用</view>
           <view class="paragraph-content">
-            3.1 我们使用收集的信息用于：<br>
-            - 提供和改进检测服务<br>
-            - 优化用户体验<br>
-            - 进行数据分析和研究<br>
-            - 确保服务的安全性<br>
-            3.2 我们不会将您的信息用于任何商业营销目的。
+            2.1 我们使用收集的信息用于：<br>
+            - 提供检测服务<br>
+            - 优化系统性能<br>
+            - 改进用户体验<br>
+            2.2 我们不会将您的信息用于其他商业用途。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">4. 信息存储</view>
+          <view class="paragraph-title">3. 信息存储</view>
           <view class="paragraph-content">
-            4.1 我们采用安全的技术措施保护您的信息。<br>
-            4.2 您的检测数据将存储在安全的服务器上。<br>
-            4.3 您可以随时删除您的检测记录。
+            3.1 您的数据存储在安全的服务器上。<br>
+            3.2 我们采取合理的安全措施保护您的信息。<br>
+            3.3 您可以随时删除您的历史记录。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">5. 信息共享</view>
+          <view class="paragraph-title">4. 信息共享</view>
           <view class="paragraph-content">
-            5.1 我们不会向第三方出售或出租您的信息。<br>
-            5.2 在以下情况下，我们可能会共享您的信息：<br>
-            - 获得您的明确同意<br>
-            - 法律法规要求<br>
-            - 保护我们的合法权益
+            4.1 我们不会与第三方共享您的信息。<br>
+            4.2 除非法律要求，我们不会披露您的信息。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">6. 您的权利</view>
+          <view class="paragraph-title">5. 您的权利</view>
           <view class="paragraph-content">
-            6.1 您有权：<br>
-            - 访问您的个人信息<br>
-            - 更正不准确的信息<br>
-            - 删除您的信息<br>
-            - 撤回同意<br>
-            - 投诉或举报
+            5.1 您可以随时查看您的历史记录。<br>
+            5.2 您可以删除您的历史记录。<br>
+            5.3 您可以随时停止使用本系统。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">7. 信息安全</view>
+          <view class="paragraph-title">6. 政策更新</view>
           <view class="paragraph-content">
-            7.1 我们采取合理的安全措施保护您的信息。<br>
-            7.2 我们定期审查和更新安全措施。<br>
-            7.3 我们建议您采取适当措施保护您的设备安全。
+            6.1 我们可能随时更新本隐私政策。<br>
+            6.2 更新后的政策将在系统内公布。<br>
+            6.3 继续使用本系统即表示您同意更新后的政策。
           </view>
         </view>
 
         <view class="paragraph">
-          <view class="paragraph-title">8. 政策更新</view>
+          <view class="paragraph-title">7. 联系我们</view>
           <view class="paragraph-content">
-            8.1 我们可能会不时更新本隐私政策。<br>
-            8.2 更新后的政策将在本系统上公布。<br>
-            8.3 继续使用我们的服务即表示您同意更新后的政策。
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">9. 联系我们</view>
-          <view class="paragraph-content">
-            如果您对本隐私政策有任何疑问或建议，请通过以下方式联系我们：<br>
-            邮箱：support@example.com<br>
-            电话：400-123-4567
+            如果您对本隐私政策有任何疑问，请通过以下方式联系我们：<br>
+            邮箱：support@example.com
           </view>
         </view>
       </view>

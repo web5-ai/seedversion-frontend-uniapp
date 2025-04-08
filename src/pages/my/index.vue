@@ -88,7 +88,7 @@
             </view>
             <text class="menu-arrow">›</text>
           </view>
-          <view class="menu-item" @click="showModal('用户协议')">
+          <view class="menu-item" @click="navigateTo('/pages/terms/user')">
             <view class="menu-item-left">
               <view class="menu-icon">
                 <image src="/static/icons/terms.svg" mode="aspectFit" class="icon-image" alt="用户协议图标"></image>
@@ -97,7 +97,7 @@
             </view>
             <text class="menu-arrow">›</text>
           </view>
-          <view class="menu-item" @click="showModal('隐私政策')">
+          <view class="menu-item" @click="navigateTo('/pages/terms/privacy')">
             <view class="menu-item-left">
               <view class="menu-icon">
                 <image src="/static/icons/privacy.svg" mode="aspectFit" class="icon-image" alt="隐私政策图标"></image>
