@@ -1,37 +1,265 @@
+@import './theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  /* 添加自定义基础样式 */
+/* 全局样式 */
+@layer components {
+  /* 页面容器 */
+  .page-container {
+    @apply min-h-screen bg-f5f7fa px-4 pb-6 box-border;
+  }
+
+  /* 内容区块 */
+  .content-block {
+    @apply bg-white rounded-lg px-4 py-5 mb-4;
+  }
+
+  /* 标题 */
+  .section-title {
+    @apply text-lg font-medium mb-3 text-gray-900;
+  }
+
+  /* 副标题 */
+  .section-subtitle {
+    @apply text-base font-medium mb-2 text-gray-700;
+  }
+
+  /* 分割线 */
+  .divider {
+    @apply w-full h-px bg-gray-200 my-4;
+  }
+
+  /* 按钮组件 */
+  .btn {
+    @apply flex items-center justify-center transition-all duration-300 font-medium;
+    @apply h-12 rounded-lg active:opacity-80 active:scale-98;
+  }
+
+  .btn-block {
+    @apply w-full;
+  }
+
+  .btn-round {
+    @apply rounded-full;
+  }
+
+  .btn-disabled {
+    @apply opacity-60 pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-200;
+  }
+
+  .btn-success {
+    @apply bg-success text-white;
+  }
+
+  .btn-warning {
+    @apply bg-warning text-white;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white;
+  }
+
+  .btn-text {
+    @apply text-base;
+  }
+
+  /* 加载动画 */
+  .loading-spinner {
+    @apply w-5 h-5 rounded-full animate-spin;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+  }
+
+  .btn-secondary .loading-spinner {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #333;
+  }
+
+  /* 列表项 */
+  .list-item {
+    @apply flex items-center justify-between py-3 px-4 bg-white;
+  }
+
+  .list-item-hover {
+    @apply active:bg-gray-50;
+  }
+
+  .list-item-title {
+    @apply text-gray-800 text-base;
+  }
+
+  .list-item-desc {
+    @apply text-gray-500 text-sm mt-1;
+  }
+
+  .list-item-right {
+    @apply flex items-center;
+  }
+
+  .list-item-value {
+    @apply text-gray-600 text-sm mr-2;
+  }
+
+  /* 表单元素 */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .form-input {
+    @apply w-full h-12 px-3 border border-gray-300 rounded-lg text-base;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
+  }
+
+  .form-error {
+    @apply text-danger text-xs mt-1;
+  }
+
+  /* 卡片 */
+  .card {
+    @apply bg-white rounded-lg overflow-hidden;
+  }
+
+  .card-shadow {
+    @apply shadow-md;
+  }
+
+  .card-hover {
+    @apply transition-shadow duration-300 hover:shadow-lg;
+  }
+
+  .card-header {
+    @apply px-4 py-3 border-b border-gray-100;
+  }
+
+  .card-title {
+    @apply text-base font-medium text-gray-800;
+  }
+
+  .card-body {
+    @apply p-4;
+  }
+
+  .card-footer {
+    @apply px-4 py-3 border-t border-gray-100;
+  }
+
+  /* 图标文本 */
+  .icon-text {
+    @apply flex items-center;
+  }
+
+  .icon-text-vertical {
+    @apply flex-col items-center;
+  }
+
+  .icon-text-primary {
+    @apply text-primary;
+  }
+
+  .icon-text-secondary {
+    @apply text-gray-600;
+  }
+
+  .icon-text-success {
+    @apply text-success;
+  }
+
+  .icon-text-warning {
+    @apply text-warning;
+  }
+
+  .icon-text-danger {
+    @apply text-danger;
+  }
+
+  /* 页面头部 */
+  .page-header {
+    @apply relative flex items-center justify-center h-12 bg-white;
+  }
+
+  .page-header-title {
+    @apply text-lg font-medium text-gray-900;
+  }
+
+  .page-header-back {
+    @apply absolute left-4 flex items-center justify-center;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 }
 
-@layer components {
-  .container {
-    @apply px-4 mx-auto;
-  }
-  
-  .btn {
-    @apply px-4 py-2 rounded-md font-medium focus:outline-none;
-  }
-  
-  .btn-primary {
-    @apply bg-green-500 text-white font-semibold rounded-lg px-4 py-2;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary text-white hover:bg-opacity-90;
-  }
-  
-  .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
-  }
-  
-  .card {
-    @apply bg-white rounded-md shadow-sm overflow-hidden;
+@layer base {
+  /* 基础元素样式重置 */
+  view, text, image, button, input, textarea, scroll-view {
+    box-sizing: border-box;
   }
 }
 
 @layer utilities {
-  /* 添加自定义工具类 */
+  /* 文本颜色 */
+  .text-primary {
+    color: var(--text-primary);
+  }
+  
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  
+  .text-hint {
+    color: var(--text-hint);
+  }
+  
+  .text-theme {
+    color: var(--primary-color);
+  }
+  
+  /* 背景颜色 */
+  .bg-page {
+    background-color: var(--bg-page);
+  }
+  
+  .bg-card {
+    background-color: var(--bg-card);
+  }
+  
+  .bg-theme {
+    background-color: var(--primary-color);
+  }
+  
+  .bg-theme-light {
+    background-color: var(--primary-bg-light);
+  }
+  
+  /* 间距工具类 */
+  .spacing-xs {
+    padding: var(--spacing-xs);
+  }
+  
+  .spacing-sm {
+    padding: var(--spacing-sm);
+  }
+  
+  .spacing-md {
+    padding: var(--spacing-md);
+  }
+  
+  .spacing-lg {
+    padding: var(--spacing-lg);
+  }
 } 

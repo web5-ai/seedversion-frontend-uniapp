@@ -38,6 +38,9 @@ export default {
 </script>
 
 <style>
+@import './styles/theme.css';
+@import './styles/tailwind.css';
+
 /* 全局样式 */
 page {
   min-height: 100%;
@@ -73,16 +76,6 @@ button::after {
   border: none;
 }
 
-/* 自定义颜色变量 */
-:root {
-  --primary-color: #4CAF50;
-  --secondary-color: #FFC107;
-  --text-color: #333333;
-  --text-color-light: #666666;
-  --background-color: #f9fafb;
-  --border-color: #e5e7eb;
-}
-
 /* 安全区适配 */
 .safe-area-inset-bottom {
   padding-bottom: constant(safe-area-inset-bottom);
@@ -100,22 +93,5 @@ button::after {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
-}
-
-/* 扩展TailwindCSS样式 */
-.text-primary {
-  color: var(--primary-color);
-}
-.bg-primary {
-  background-color: var(--primary-color);
-}
-.border-primary {
-  border-color: var(--primary-color);
-}
-.text-secondary {
-  color: var(--secondary-color);
-}
-.bg-secondary {
-  background-color: var(--secondary-color);
 }
 </style> 

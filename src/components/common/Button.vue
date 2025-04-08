@@ -1,37 +1,62 @@
 <template>
   <view 
-    class="custom-button"
+    class="btn"
     :class="[
-      `button-${type}`,
-      { 'button-disabled': disabled || loading }
+      `btn-${type}`,
+      { 'btn-disabled': disabled || loading, 'btn-block': block, 'btn-round': round }
     ]"
     @click="handleClick"
     :aria-disabled="disabled || loading"
   >
     <view class="loading-spinner" v-if="loading"></view>
-    <text v-else class="button-text" :class="`text-${type}`">
+    <text v-else class="btn-text">
       <slot></slot>
     </text>
   </view>
 </template>
 
 <script>
+/**
+ * 按钮组件
+ * 使用方法: <common-button type="primary" :loading="false" :disabled="false" :block="true" :round="false" @click="handleClick">按钮文本</common-button>
+ */
 export default {
   name: 'CommonButton',
   props: {
-    // 按钮类型：primary(主要按钮), secondary(次要按钮)
+    /**
+     * 按钮类型：primary(主要按钮), secondary(次要按钮), 
+     * success(成功), warning(警告), danger(危险)
+     */
     type: {
       type: String,
       default: 'primary',
-      validator: value => ['primary', 'secondary'].includes(value)
+      validator: value => ['primary', 'secondary', 'success', 'warning', 'danger'].includes(value)
     },
-    // 是否禁用
+    /**
+     * 是否禁用
+     */
     disabled: {
       type: Boolean,
       default: false
     },
-    // 是否显示加载中状态
+    /**
+     * 是否显示加载中状态
+     */
     loading: {
+      type: Boolean,
+      default: false
+    },
+    /**
+     * 是否占满整行宽度
+     */
+    block: {
+      type: Boolean,
+      default: true
+    },
+    /**
+     * 是否为圆角按钮
+     */
+    round: {
       type: Boolean,
       default: false
     }
@@ -47,65 +72,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.custom-button {
-  width: 100%;
-  height: 48px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.button-primary {
-  background-color: #55C353;
-}
-
-.button-secondary {
-  background-color: #FFFFFF;
-  border: 1px solid #E8E8E8;
-}
-
-.button-disabled {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.custom-button:active:not(.button-disabled) {
-  opacity: 0.8;
-  transform: scale(0.98);
-}
-
-.button-text {
-  font-size: 16px;
-}
-
-.text-primary {
-  color: #FFFFFF;
-}
-
-.text-secondary {
-  color: #333333;
-}
-
-/* 加载动画 */
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #FFFFFF;
-  animation: spin 1s infinite linear;
-}
-
-.button-secondary .loading-spinner {
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #333333;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+<style>
+/* 使用Tailwind类，无需单独CSS */
 </style> 
