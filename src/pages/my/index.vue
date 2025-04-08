@@ -63,15 +63,6 @@
             </view>
             <text class="menu-arrow">›</text>
           </view>
-          <view class="menu-item" @click="navigateTo('/pages/settings/notification')">
-            <view class="menu-item-left">
-              <view class="menu-icon">
-                <image src="/static/icons/notification.svg" mode="aspectFit" class="icon-image" alt="消息通知图标"></image>
-              </view>
-              <text class="menu-text">消息通知</text>
-            </view>
-            <text class="menu-arrow">›</text>
-          </view>
         </view>
       </view>
       
@@ -151,23 +142,55 @@ export default {
     return {
       // 用户信息
       userInfo: {
-        isLoggedIn: true, // 调试时设为true，实际应根据登录状态判断
-        nickname: '张三',
-        userId: '12345678',
+        isLoggedIn: false, // 默认未登录状态
+        nickname: '',
+        userId: '',
         avatar: '/static/images/avatar-default.svg'
       }
     }
   },
+  onShow() {
+    // 每次页面显示时检查登录状态
+    this.checkLoginStatus();
+  },
   onLoad() {
-    // 加载用户信息
-    this.loadUserInfo();
+    // 页面加载时检查登录状态
+    this.checkLoginStatus();
   },
   methods: {
+    // 检查登录状态
+    checkLoginStatus() {
+      try {
+        // 从store获取用户信息
+        const storeUser = this.$store?.state?.user;
+        const token = uni.getStorageSync('token');
+        
+        if ((storeUser && storeUser.isLoggedIn) || token) {
+          this.loadUserInfo();
+        } else {
+          // 未登录，跳转到登录页
+          console.log('用户未登录，跳转到登录页');
+          this.redirectToLogin();
+        }
+      } catch (e) {
+        console.error('检查登录状态失败:', e);
+        this.redirectToLogin();
+      }
+    },
+    
+    // 重定向到登录页
+    redirectToLogin() {
+      // 使用重定向而不是普通导航，防止用户通过返回按钮回到未登录的页面
+      uni.redirectTo({
+        url: '/pages/login/index'
+      });
+    },
+    
     // 加载用户信息
     loadUserInfo() {
       try {
         // 从store获取用户信息
-        const storeUser = this.$store.state.user;
+        const storeUser = this.$store?.state?.user;
         if (storeUser && storeUser.isLoggedIn) {
           this.userInfo = {
             isLoggedIn: storeUser.isLoggedIn,
@@ -188,12 +211,22 @@ export default {
                   userId: userInfo.userId,
                   avatar: userInfo.avatar || '/static/images/avatar-default.svg'
                 };
+              } else {
+                // 获取用户信息失败，可能token已失效
+                this.redirectToLogin();
               }
+            }).catch(() => {
+              // API调用失败，可能是token无效
+              this.redirectToLogin();
             });
+          } else {
+            // 没有token，跳转到登录页
+            this.redirectToLogin();
           }
         }
       } catch (e) {
         console.error('获取用户信息失败:', e);
+        this.redirectToLogin();
       }
     },
     
@@ -267,9 +300,16 @@ export default {
                 avatar: '/static/images/avatar-default.svg'
               };
               
+              // 退出后重定向到登录页
               uni.showToast({
                 title: '已退出登录',
-                icon: 'success'
+                icon: 'success',
+                success: () => {
+                  // 延迟跳转，让提示消息显示完
+                  setTimeout(() => {
+                    this.redirectToLogin();
+                  }, 1500);
+                }
               });
             }).catch(err => {
               console.error('登出失败:', err);

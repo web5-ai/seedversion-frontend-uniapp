@@ -45,6 +45,15 @@
       }
     },
     {
+      "path": "pages/help/faq",
+      "style": {
+        "navigationBarTitleText": "常见问题",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "历史记录",
