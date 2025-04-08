@@ -32,11 +32,11 @@
             </view>
             <text class="grid-text">收藏</text>
           </view>
-          <view class="grid-item" @click="navigateTo('/pages/report/index')">
-            <view class="grid-icon report-icon">
-              <image src="/static/icons/report.svg" mode="aspectFit" class="icon-image" alt="检测报告图标"></image>
+          <view class="grid-item" @click="navigateTo('/pages/feedback-list/index')">
+            <view class="grid-icon feedback-icon">
+              <image src="/static/icons/feedback.svg" mode="aspectFit" class="icon-image" alt="反馈记录图标"></image>
             </view>
-            <text class="grid-text">检测报告</text>
+            <text class="grid-text">反馈记录</text>
           </view>
         </view>
       </view>

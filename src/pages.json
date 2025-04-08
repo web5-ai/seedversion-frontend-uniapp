@@ -36,6 +36,15 @@
       }
     },
     {
+      "path": "pages/feedback-list/index",
+      "style": {
+        "navigationBarTitleText": "反馈记录",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "历史记录",
