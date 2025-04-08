@@ -149,51 +149,18 @@ export default {
         conclusion: '该样本油酸含量较高，品质较好适合加工高品质食用油',
         quality: '优',
         recommendation: '适合加工高品质食用油'
-      }
+      },
+      isLoading: true,
+      analysisResult: null
     };
   },
   onLoad(options) {
-    // 从页面参数或缓存获取检测结果数据
+    // 从页面参数获取记录ID
     if (options.recordId) {
-      // 尝试从缓存获取最新的分析结果
-      const cachedResult = uni.getStorageSync('current_analysis_result');
-      
-      // 如果有缓存的结果，且ID匹配，则使用缓存结果
-      if (cachedResult && cachedResult.id === options.recordId) {
-        console.log('从缓存加载分析结果:', cachedResult);
-        
-        // 更新样本数据
-        if (cachedResult.image) {
-          this.sampleData.imagePath = cachedResult.image;
-        }
-        
-        if (cachedResult.date) {
-          this.sampleData.collectionDate = cachedResult.date;
-        }
-        
-        // 更新成分数据
-        if (cachedResult.oilAcid) {
-          this.components[0].value = cachedResult.oilAcid;
-        }
-        
-        if (cachedResult.linoleicAcid) {
-          this.components[1].value = cachedResult.linoleicAcid;
-        }
-        
-        if (cachedResult.quality) {
-          this.analysis.quality = cachedResult.quality;
-        }
-        
-        // 保存记录ID
-        this.sampleData.id = cachedResult.id;
-      } else {
-        // 如果没有缓存或ID不匹配，则尝试从服务器或其他存储获取
-        console.log('尝试从服务器加载记录ID:', options.recordId);
-        // TODO: 实现从服务器获取检测记录详情
-        
-        // 临时保存记录ID
-        this.sampleData.id = options.recordId;
-      }
+      // TODO: 实现从服务器获取检测记录详情
+      // 在实际项目中，这里应该调用API获取检测结果
+      // 这里使用随机数据模拟
+      this.simulateLoadingResult();
     }
   },
   methods: {
@@ -273,6 +240,14 @@ export default {
       uni.navigateTo({
         url: `/pages/feedback/index?recordId=${this.sampleData.id}`
       });
+    },
+    simulateLoadingResult() {
+      // 如果有缓存的分析结果，直接加载
+      const cachedResult = uni.getStorageSync('lastAnalysisResult');
+      if (cachedResult) {
+        this.analysisResult = JSON.parse(cachedResult);
+        this.isLoading = false;
+      }
     }
   }
 }

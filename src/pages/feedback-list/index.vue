@@ -15,7 +15,7 @@
         :key="index"
         class="feedback-item"
         :class="getStatusClass(item.status)"
-        @click="viewFeedbackDetail(item)"
+        @click="viewDetail(item)"
       >
         <!-- 日期 -->
         <view class="feedback-date">{{ item.date }}</view>
@@ -100,30 +100,10 @@ export default {
     },
     
     // 查看反馈详情
-    viewFeedbackDetail(item) {
-      console.log('跳转到反馈详情:', item.id);
-      
-      // 创建反馈详情页面参数
-      try {
-        uni.navigateTo({
-          url: `/pages/feedback-detail/index?id=${item.id}`,
-          success: function() {
-            console.log('跳转成功');
-          },
-          fail: function(err) {
-            console.error('跳转失败:', err);
-            
-            // 如果页面不存在，给出提示
-            uni.showToast({
-              title: '详情页正在开发中',
-              icon: 'none',
-              duration: 2000
-            });
-          }
-        });
-      } catch (error) {
-        console.error('导航错误:', error);
-      }
+    viewDetail(item) {
+      uni.navigateTo({
+        url: `/pages/feedback/index?feedbackId=${item.id}`
+      });
     }
   }
 }

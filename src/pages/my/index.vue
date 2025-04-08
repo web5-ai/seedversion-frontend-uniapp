@@ -169,7 +169,6 @@ export default {
           this.loadUserInfo();
         } else {
           // 未登录，跳转到登录页
-          console.log('用户未登录，跳转到登录页');
           this.redirectToLogin();
         }
       } catch (e) {
@@ -246,9 +245,11 @@ export default {
     
     // 跳转到指定页面
     navigateTo(url) {
-      // 处理收藏功能（开发中）
-      if (url.includes('/pages/favorite/index')) {
-        this.showDevelopingFeature('收藏');
+      // 处理未实现的功能
+      if (url.includes('/pages/favorite/index') || 
+          url.includes('/pages/settings/account') ||
+          url.includes('/pages/settings/security')) {
+        this.showDevelopingFeature(url.includes('favorite') ? '收藏' : '账户设置');
         return;
       }
       

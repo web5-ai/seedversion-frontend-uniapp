@@ -7,23 +7,14 @@
 <script>
 export default {
   onLaunch: function() {
-    console.log('App Launch');
-    // 检查登录状态并保存到vuex
-    try {
-      const token = uni.getStorageSync('token');
-      if (token) {
-        // 如果有token，获取用户信息
-        this.getUserInfo();
-      }
-    } catch (e) {
-      console.error('启动检查登录状态失败:', e);
-    }
+    // App 启动时执行，只执行一次
+    // 初始化用户状态、检查更新、设置主题等
   },
   onShow: function() {
-    console.log('App Show');
+    // App 从后台进入前台显示时触发
   },
   onHide: function() {
-    console.log('App Hide');
+    // App 从前台进入后台时触发
   },
   methods: {
     getUserInfo() {

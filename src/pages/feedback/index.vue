@@ -154,7 +154,9 @@ export default {
       // 反馈内容
       feedbackContent: '',
       // 联系方式
-      contactInfo: ''
+      contactInfo: '',
+      // 记录详情
+      recordDetails: {}
     }
   },
   computed: {
@@ -169,39 +171,10 @@ export default {
     }
   },
   onLoad(options) {
+    // 如果有记录ID参数，表示用户正在对某条检测记录提交反馈
     if (options.recordId) {
       this.sampleData.recordId = options.recordId;
-      
-      // 尝试从缓存获取分析结果
-      const cachedResult = uni.getStorageSync('current_analysis_result');
-      if (cachedResult && cachedResult.id === options.recordId) {
-        // 更新样本图片和数据
-        if (cachedResult.image) {
-          this.sampleImage = cachedResult.image;
-        }
-        
-        if (cachedResult.oilAcid) {
-          this.sampleData.oilAcid = cachedResult.oilAcid;
-        }
-        
-        if (cachedResult.linoleicAcid) {
-          this.sampleData.linoleicAcid = cachedResult.linoleicAcid;
-        }
-        
-        if (cachedResult.quality) {
-          this.sampleData.quality = cachedResult.quality;
-        }
-      } else {
-        // 如果没有缓存，尝试从服务器获取
-        console.log('尝试获取记录ID:', options.recordId);
-        // TODO: 实现从服务器获取检测记录详情
-        
-        // 临时使用默认图片
-        this.sampleImage = '/static/images/canola.jpg';
-      }
-    } else {
-      // 如果没有记录ID，使用默认图片
-      this.sampleImage = '/static/images/canola.jpg';
+      this.loadRecordDetails(options.recordId);
     }
   },
   methods: {
@@ -263,6 +236,22 @@ export default {
       setTimeout(() => {
         uni.navigateBack();
       }, 2000);
+    },
+    // 加载检测记录详情
+    loadRecordDetails(recordId) {
+      // TODO: 实现从服务器获取检测记录详情
+      
+      // 模拟数据
+      this.recordDetails = {
+        id: recordId,
+        date: this.formatDate(new Date()),
+        components: '亚油酸: 35.2%, 亚麻酸: 8.6%',
+        quality: '优'
+      };
+    },
+    // 格式化日期
+    formatDate(date) {
+      return date.toLocaleDateString();
     }
   }
 }

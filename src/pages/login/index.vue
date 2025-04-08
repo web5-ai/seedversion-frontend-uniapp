@@ -139,8 +139,6 @@ export default {
         return;
       }
       
-      console.log('获取验证码', this.phone);
-      
       // 开始倒计时
       this.cooldown = 60;
       this.timer = setInterval(() => {
@@ -179,8 +177,6 @@ export default {
       
       // 防止重复提交
       if (this.isSubmitting) return;
-      
-      console.log('登录', this.phone, this.verifyCode);
       
       // 设置提交状态
       this.isSubmitting = true;

@@ -214,6 +214,39 @@ export default {
       // uni.navigateTo({
       //   url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(record.image)}&source=detail&recordId=${record.id}`
       // });
+    },
+    
+    // 请求相机权限
+    requestCameraAuth() {
+      // #ifdef APP-PLUS || MP
+      uni.authorize({
+        scope: 'scope.camera',
+        success: () => {
+          this.openCamera();
+        },
+        fail: () => {
+          uni.showModal({
+            title: '提示',
+            content: '需要相机权限才能进行拍照检测',
+            confirmText: '去设置',
+            success: (res) => {
+              if (res.confirm) {
+                uni.openSetting();
+              }
+            }
+          });
+        }
+      });
+      // #endif
+      
+      // #ifdef H5
+      this.openCamera();
+      // #endif
+    },
+    
+    // 打开相机
+    openCamera() {
+      // 实现打开相机逻辑
     }
   }
 }

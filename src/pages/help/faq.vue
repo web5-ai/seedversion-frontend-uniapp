@@ -167,7 +167,6 @@ export default {
     
     // 处理搜索
     handleSearch() {
-      console.log('搜索关键词:', this.searchKeyword);
       // 关闭键盘
       uni.hideKeyboard();
     },
@@ -200,6 +199,21 @@ export default {
         icon: 'none',
         duration: 2000
       });
+    },
+    
+    // 搜索FAQ
+    searchFAQ() {
+      if (!this.searchKeyword.trim()) {
+        // 如果搜索关键词为空，显示所有FAQ
+        this.filteredFAQs = this.faqs;
+        return;
+      }
+      
+      // 按关键词过滤FAQ
+      this.filteredFAQs = this.faqs.filter(faq => 
+        faq.question.toLowerCase().includes(this.searchKeyword.toLowerCase()) || 
+        faq.answer.toLowerCase().includes(this.searchKeyword.toLowerCase())
+      );
     }
   }
 }
