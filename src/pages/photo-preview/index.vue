@@ -168,14 +168,27 @@ export default {
       // 模拟分析过程
       setTimeout(() => {
         // 模拟检测结果
-        this.result = {
+        const result = {
+          id: Date.now().toString(),
+          date: this.formatDate(new Date()),
+          image: this.imagePath,
           oilAcid: '42.8%',
           linoleicAcid: '23.5%',
           quality: '优'
         };
         
+        // 保存结果到缓存以便结果页面获取
+        uni.setStorageSync('current_analysis_result', result);
+        
+        // 发送事件，通知首页添加新记录
+        uni.$emit('addDetectionRecord', result);
+        
+        // 分析完成，跳转到结果页面
+        uni.navigateTo({
+          url: `/pages/result/index?recordId=${result.id}`
+        });
+        
         this.analyzing = false;
-        this.hasResult = true;
       }, 3000);
       
       // TODO: 实际项目中这里应该调用分析API

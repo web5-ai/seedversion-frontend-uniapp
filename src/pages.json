@@ -18,6 +18,15 @@
       }
     },
     {
+      "path": "pages/result/index",
+      "style": {
+        "navigationBarTitleText": "分析结果",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "历史记录",

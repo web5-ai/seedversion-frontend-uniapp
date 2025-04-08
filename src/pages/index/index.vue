@@ -205,10 +205,15 @@ export default {
     
     // 查看详情
     viewDetail(record) {
-      // 跳转到照片预览页面查看详情
+      // 跳转到分析结果页面查看详情
       uni.navigateTo({
-        url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(record.image)}&source=detail&recordId=${record.id}`
+        url: `/pages/result/index?recordId=${record.id}`
       });
+      
+      // 旧方式：跳转到照片预览页面查看详情
+      // uni.navigateTo({
+      //   url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(record.image)}&source=detail&recordId=${record.id}`
+      // });
     }
   }
 }
