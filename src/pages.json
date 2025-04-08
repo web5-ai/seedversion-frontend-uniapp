@@ -27,6 +27,15 @@
       }
     },
     {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationBarTitleText": "提供反馈",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "历史记录",

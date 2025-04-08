@@ -183,10 +183,16 @@ export default {
         if (cachedResult.quality) {
           this.analysis.quality = cachedResult.quality;
         }
+        
+        // 保存记录ID
+        this.sampleData.id = cachedResult.id;
       } else {
         // 如果没有缓存或ID不匹配，则尝试从服务器或其他存储获取
         console.log('尝试从服务器加载记录ID:', options.recordId);
         // TODO: 实现从服务器获取检测记录详情
+        
+        // 临时保存记录ID
+        this.sampleData.id = options.recordId;
       }
     }
   },
@@ -261,21 +267,11 @@ export default {
       }, 1000);
     },
     
-    // 保存报告
+    // 跳转到反馈页面
     saveReport() {
-      uni.showModal({
-        title: '提供反馈',
-        content: '您的反馈有助于我们改进分析模型',
-        cancelText: '取消',
-        confirmText: '提交',
-        success: (res) => {
-          if (res.confirm) {
-            uni.showToast({
-              title: '感谢您的反馈',
-              icon: 'success'
-            });
-          }
-        }
+      // 跳转到反馈页面，传入记录ID
+      uni.navigateTo({
+        url: `/pages/feedback/index?recordId=${this.sampleData.id}`
       });
     }
   }
