@@ -3,7 +3,7 @@
     <!-- 顶部标题栏 -->
     <view class="header">
       <view class="back-btn" @click="goBack">
-        <text class="back-icon">&#xe600;</text>
+        <text class="back-icon">&lt;</text>
       </view>
       <text class="header-title">历史反馈记录</text>
     </view>
@@ -34,7 +34,7 @@
         
         <!-- 右箭头 -->
         <view class="arrow-right">
-          <text class="arrow-icon">&#xe601;</text>
+          <text class="arrow-icon">›</text>
         </view>
       </view>
     </view>
@@ -101,9 +101,29 @@ export default {
     
     // 查看反馈详情
     viewFeedbackDetail(item) {
-      uni.navigateTo({
-        url: `/pages/feedback-detail/index?id=${item.id}`
-      });
+      console.log('跳转到反馈详情:', item.id);
+      
+      // 创建反馈详情页面参数
+      try {
+        uni.navigateTo({
+          url: `/pages/feedback-detail/index?id=${item.id}`,
+          success: function() {
+            console.log('跳转成功');
+          },
+          fail: function(err) {
+            console.error('跳转失败:', err);
+            
+            // 如果页面不存在，给出提示
+            uni.showToast({
+              title: '详情页正在开发中',
+              icon: 'none',
+              duration: 2000
+            });
+          }
+        });
+      } catch (error) {
+        console.error('导航错误:', error);
+      }
     }
   }
 }
@@ -140,12 +160,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 30px;
+  height: 30px;
 }
 
 .back-icon {
   color: #fff;
   font-size: 24px;
-  font-family: "iconfont";
+  font-weight: bold;
 }
 
 /* 反馈列表 */
@@ -159,6 +181,12 @@ export default {
   padding: 15px;
   border-radius: 8px;
   overflow: hidden;
+  transition: opacity 0.2s ease;
+  cursor: pointer; /* 使hover显示手型指针 */
+}
+
+.feedback-item:active {
+  opacity: 0.8; /* 点击时的视觉反馈 */
 }
 
 /* 状态样式 */
@@ -225,7 +253,6 @@ export default {
 
 .arrow-icon {
   font-size: 20px;
-  font-family: "iconfont";
 }
 
 /* 空状态 */
