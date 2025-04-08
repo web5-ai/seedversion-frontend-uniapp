@@ -10,6 +10,14 @@
       }
     },
     {
+      "path": "pages/photo-preview/index",
+      "style": {
+        "navigationBarTitleText": "照片预览",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "历史记录",

@@ -67,14 +67,34 @@ export default {
           linoleicAcid: '23.5%',
           quality: '优'
         }
-      ]
+      ],
+      // 当前选择图片的来源（camera-相机拍照，album-相册选择）
+      currentSource: 'camera'
     }
   },
   onLoad() {
     // 页面加载时的逻辑
     this.checkPermissions();
+    
+    // 监听添加检测记录事件
+    uni.$on('addDetectionRecord', this.addDetectionRecord);
+  },
+  onUnload() {
+    // 页面卸载时移除事件监听
+    uni.$off('addDetectionRecord', this.addDetectionRecord);
   },
   methods: {
+    // 添加检测记录
+    addDetectionRecord(record) {
+      // 添加到检测结果列表
+      this.recentRecords.unshift(record);
+      
+      // 限制列表长度
+      if (this.recentRecords.length > 5) {
+        this.recentRecords.pop();
+      }
+    },
+    
     // 检查相机和存储权限
     checkPermissions() {
       // #ifdef APP-PLUS || MP
@@ -111,6 +131,9 @@ export default {
     
     // 拍照
     takePhoto() {
+      // 记录来源
+      this.currentSource = 'camera';
+      
       uni.chooseImage({
         count: 1,
         sourceType: ['camera'],
@@ -123,6 +146,9 @@ export default {
     
     // 从相册选择
     chooseFromAlbum() {
+      // 记录来源
+      this.currentSource = 'album';
+      
       uni.chooseImage({
         count: 1,
         sourceType: ['album'],
@@ -135,6 +161,13 @@ export default {
     
     // 上传图片
     uploadImage(filePath) {
+      // 跳转到照片预览页面
+      uni.navigateTo({
+        url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(filePath)}&source=${this.currentSource}`
+      });
+      
+      // 以下代码注释掉，交由照片预览页面处理
+      /*
       uni.showLoading({
         title: '正在分析...'
       });
@@ -167,14 +200,14 @@ export default {
           icon: 'success'
         });
       }, 2000);
+      */
     },
     
     // 查看详情
     viewDetail(record) {
-      // TODO: 跳转到详情页
-      uni.showToast({
-        title: '查看详情: ' + record.id,
-        icon: 'none'
+      // 跳转到照片预览页面查看详情
+      uni.navigateTo({
+        url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(record.image)}&source=detail&recordId=${record.id}`
       });
     }
   }
