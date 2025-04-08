@@ -5,80 +5,50 @@
       <view class="back-btn" @click="goBack">
         <image src="/static/icons/back.svg" class="back-icon"></image>
       </view>
-      <view class="header-title">关于我们</view>
+      <view class="header-title">关于应用</view>
     </view>
 
-    <!-- 关于我们内容 -->
-    <scroll-view class="content" scroll-y>
-      <view class="section">
-        <view class="title">油菜籽成分检测系统</view>
-        <view class="subtitle">专业、快捷、精准的检测解决方案</view>
-        
-        <view class="logo-container">
-          <image src="/static/logo.png" class="logo" mode="aspectFit"></image>
+    <!-- 内容区域 -->
+    <view class="content-container">
+      <!-- 应用 Logo 部分 -->
+      <view class="logo-section">
+        <view class="logo-box">
+          <image src="/static/logo.png" mode="aspectFit" class="logo-image"></image>
         </view>
-        
-        <view class="paragraph">
-          <view class="paragraph-title">系统简介</view>
-          <view class="paragraph-content">
-            油菜籽成分检测系统是一款专业的农业技术应用，致力于为农业生产者提供快速、准确的油菜籽成分分析服务。本系统利用先进的图像识别技术和人工智能算法，通过简单的拍照即可完成油菜籽的成分分析，帮助用户更好地了解油菜籽品质，为种植和收购决策提供科学依据。
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">核心功能</view>
-          <view class="paragraph-content">
-            • 一键拍照识别：简单操作，快速上传<br>
-            • 精准成分分析：多维度分析油菜籽成分<br>
-            • 智能报告生成：直观展示检测结果<br>
-            • 历史记录查询：随时查看历史检测数据
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">技术优势</view>
-          <view class="paragraph-content">
-            • 先进的图像识别算法<br>
-            • 精确的成分分析模型<br>
-            • 便捷的移动端应用<br>
-            • 安全的数据存储方案
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">团队介绍</view>
-          <view class="paragraph-content">
-            我们的团队由农业专家、算法工程师和软件开发人员组成，拥有丰富的行业经验和技术实力。团队成员致力于将先进技术应用于农业领域，为农业生产者提供专业、高效的技术支持。
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">发展历程</view>
-          <view class="paragraph-content">
-            • 2022年：项目立项，开始技术研发<br>
-            • 2023年：完成核心算法开发，进行内部测试<br>
-            • 2024年：系统正式上线，持续优化功能
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">联系我们</view>
-          <view class="paragraph-content">
-            邮箱：contact@example.com<br>
-            电话：400-123-4567<br>
-            地址：xx省xx市xx区xx路xx号
-          </view>
-        </view>
-
-        <view class="paragraph">
-          <view class="paragraph-title">版本信息</view>
-          <view class="paragraph-content">
-            当前版本：v1.0.0<br>
-            更新日期：2024年4月10日
-          </view>
-        </view>
+        <view class="app-title">油菜籽成分检测系统</view>
+        <view class="app-version">版本: 1.0.0</view>
       </view>
-    </scroll-view>
+      
+      <!-- 应用简介 -->
+      <view class="info-section">
+        <view class="info-title">应用简介：</view>
+        <view class="info-content">本应用基于深度学习技术，通过图像识别快速分析油菜籽的主要成分含量，帮助农业工作者和食品加工企业评估油菜籽品质。</view>
+      </view>
+      
+      <!-- 开发团队 -->
+      <view class="info-section">
+        <view class="info-title">开发团队</view>
+        <view class="info-content">技术支持: XX科技有限公司</view>
+        <view class="info-content">联系邮箱: support@example.com</view>
+      </view>
+      
+      <!-- 底部导航链接 -->
+      <view class="nav-links">
+        <navigator url="/pages/terms/user" class="nav-item" hover-class="none">
+          <text class="nav-text">用户协议</text>
+          <view class="nav-arrow">
+            <image src="/static/icons/arrow-right.svg" mode="aspectFit" class="arrow-icon"></image>
+          </view>
+        </navigator>
+        
+        <navigator url="/pages/terms/privacy" class="nav-item" hover-class="none">
+          <text class="nav-text">隐私政策</text>
+          <view class="nav-arrow">
+            <image src="/static/icons/arrow-right.svg" mode="aspectFit" class="arrow-icon"></image>
+          </view>
+        </navigator>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -86,7 +56,7 @@
 export default {
   methods: {
     goBack() {
-      uni.navigateBack()
+      uni.navigateBack();
     }
   }
 }
@@ -123,7 +93,6 @@ export default {
 .back-icon {
   width: 24px;
   height: 24px;
-  color: #fff;
 }
 
 .header-title {
@@ -132,57 +101,96 @@ export default {
   text-align: center;
 }
 
-.content {
+.content-container {
   flex: 1;
-  padding: 20px;
+  padding: 0;
+  background-color: var(--bg-page);
 }
 
-.section {
-  background-color: var(--bg-card);
-  border-radius: var(--border-radius-md);
-  padding: 20px;
-}
-
-.title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-align: center;
+/* Logo 部分样式 */
+.logo-section {
+  background-color: #fff;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 10px;
 }
 
-.subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.logo-container {
+.logo-box {
+  width: 80px;
+  height: 80px;
+  background-color: #f0f0f0;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
-.logo {
-  width: 120px;
-  height: 120px;
+.logo-image {
+  width: 60px;
+  height: 60px;
 }
 
-.paragraph {
-  margin-bottom: 20px;
-}
-
-.paragraph-title {
-  font-size: 16px;
+.app-title {
+  font-size: 18px;
   font-weight: 500;
   color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.app-version {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 信息部分样式 */
+.info-section {
+  background-color: #fff;
+  padding: 15px 20px;
   margin-bottom: 10px;
 }
 
-.paragraph-content {
+.info-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.info-content {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
+  margin-bottom: 5px;
+}
+
+/* 导航链接样式 */
+.nav-links {
+  background-color: #fff;
+}
+
+.nav-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.nav-text {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.nav-arrow {
+  width: 16px;
+  height: 16px;
+}
+
+.arrow-icon {
+  width: 100%;
+  height: 100%;
 }
 </style> 

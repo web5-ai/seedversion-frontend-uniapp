@@ -106,7 +106,7 @@
             </view>
             <text class="menu-arrow">›</text>
           </view>
-          <view class="menu-item" @click="showModal('关于我们')">
+          <view class="menu-item" @click="navigateTo('/pages/user/about')">
             <view class="menu-item-left">
               <view class="menu-icon">
                 <image src="/static/icons/about.svg" mode="aspectFit" class="icon-image" alt="关于我们图标"></image>
