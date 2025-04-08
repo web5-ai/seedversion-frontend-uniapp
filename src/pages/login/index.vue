@@ -10,142 +10,221 @@
       <!-- 表单区域 -->
       <view class="form-area">
         <!-- 手机号输入框 -->
-        <input 
-          class="input-field"
-          type="number"
+        <form-input
           v-model="phone"
+          type="number"
           placeholder="请输入手机号"
+          :error="phoneError"
+          error-message="请输入正确的手机号"
+          aria-label="手机号输入框"
+          @input="validatePhone"
+          maxlength="11"
         />
         
         <!-- 验证码输入区域 -->
         <view class="verify-code-area">
-          <input 
-            class="input-field verify-code-input"
-            type="number"
+          <form-input
+            class="verify-code-input"
             v-model="verifyCode"
+            type="number"
             placeholder="请输入验证码"
+            :error="codeError"
+            error-message="请输入6位验证码"
+            aria-label="验证码输入框"
+            @input="validateCode"
             maxlength="6"
           />
-          <view 
-            class="get-code-btn"
+          <code-button 
+            :disabled="!isPhoneValid"
+            :cooldown="cooldown"
             @click="getVerifyCode"
-          >
-            <text>{{ cooldown > 0 ? `${cooldown}秒后重试` : '获取验证码' }}</text>
-          </view>
+          />
         </view>
         
         <!-- 登录按钮 -->
-        <view 
-          class="login-btn"
-          @click="handleLogin"
-        >
-          <text class="btn-text">登录/注册</text>
+        <view class="button-wrapper">
+          <common-button 
+            :loading="isSubmitting"
+            :disabled="!canSubmit"
+            @click="handleLogin"
+          >登录/注册</common-button>
         </view>
       </view>
       
       <!-- 协议文本 -->
-      <view class="agreement-area">
-        <text class="agreement-text">登录即表示同意 </text>
-        <text class="agreement-link" @click="viewTerms('user')">《用户协议》</text>
-        <text class="agreement-text"> 和 </text>
-        <text class="agreement-link" @click="viewTerms('privacy')">《隐私政策》</text>
+      <view class="agreement-wrapper">
+        <agreement-text
+          @user-agreement="viewTerms('user')"
+          @privacy-agreement="viewTerms('privacy')"
+        />
       </view>
     </view>
   </view>
 </template>
 
 <script>
+import FormInput from '../../components/form/FormInput.vue';
+import CodeButton from '../../components/form/CodeButton.vue';
+import CommonButton from '../../components/common/Button.vue';
+import AgreementText from '../../components/common/AgreementText.vue';
+
+// 防抖函数
+function debounce(fn, delay) {
+  let timer = null;
+  return function() {
+    if (timer) clearTimeout(timer);
+    const context = this;
+    const args = arguments;
+    timer = setTimeout(() => {
+      fn.apply(context, args);
+    }, delay);
+  };
+}
+
 export default {
+  components: {
+    FormInput,
+    CodeButton,
+    CommonButton,
+    AgreementText
+  },
   data() {
     return {
       phone: '',
       verifyCode: '',
       cooldown: 0,
-      timer: null
+      timer: null,
+      phoneError: false,
+      codeError: false,
+      isSubmitting: false
+    }
+  },
+  computed: {
+    isPhoneValid() {
+      return this.phone && /^1\d{10}$/.test(this.phone);
+    },
+    isCodeValid() {
+      return this.verifyCode && this.verifyCode.length === 6;
+    },
+    canSubmit() {
+      return this.isPhoneValid && this.isCodeValid && !this.isSubmitting;
     }
   },
   methods: {
-    getVerifyCode() {
-      // 验证手机号
-      if (!this.phone || this.phone.length !== 11) {
+    validatePhone() {
+      // 清除之前的错误
+      this.phoneError = false;
+      
+      // 如果已输入内容但格式不正确，显示错误
+      if (this.phone && !this.isPhoneValid) {
+        this.phoneError = true;
+      }
+    },
+    validateCode() {
+      // 清除之前的错误
+      this.codeError = false;
+      
+      // 如果已输入内容但不是6位，显示错误
+      if (this.verifyCode && !this.isCodeValid) {
+        this.codeError = true;
+      }
+    },
+    getVerifyCode: debounce(function() {
+      // 如果手机号无效，不执行操作
+      if (!this.isPhoneValid) {
+        this.phoneError = true;
         uni.showToast({
           title: '请输入正确的手机号',
           icon: 'none'
-        })
-        return
+        });
+        return;
       }
       
       // 开始倒计时
-      this.cooldown = 60
+      this.cooldown = 60;
       this.timer = setInterval(() => {
-        this.cooldown--
+        this.cooldown--;
         if (this.cooldown <= 0) {
-          clearInterval(this.timer)
+          clearInterval(this.timer);
         }
-      }, 1000)
+      }, 1000);
       
       // TODO: 调用发送验证码的API
       uni.showToast({
         title: '验证码已发送',
         icon: 'success'
-      })
-    },
-    handleLogin() {
+      });
+    }, 300),
+    handleLogin: debounce(function() {
       // 验证输入
-      if (!this.phone || this.phone.length !== 11) {
+      this.validatePhone();
+      this.validateCode();
+      
+      if (!this.isPhoneValid) {
         uni.showToast({
           title: '请输入正确的手机号',
           icon: 'none'
-        })
-        return
+        });
+        return;
       }
       
-      if (!this.verifyCode || this.verifyCode.length !== 6) {
+      if (!this.isCodeValid) {
         uni.showToast({
           title: '请输入6位验证码',
           icon: 'none'
-        })
-        return
+        });
+        return;
       }
+      
+      // 防止重复提交
+      if (this.isSubmitting) return;
+      
+      // 设置提交状态
+      this.isSubmitting = true;
       
       // TODO: 调用登录API
-      const userInfo = {
-        userId: 'user_' + Date.now(),
-        phone: this.phone,
-        nickname: '用户' + this.phone.substring(7)
-      }
-      
-      // 模拟登录成功
-      this.$store.commit('setUser', userInfo)
-      uni.setStorageSync('token', 'mock_token_' + Date.now())
-      
-      uni.showToast({
-        title: '登录成功',
-        icon: 'success',
-        duration: 1500,
-        success: () => {
-          setTimeout(() => {
-            uni.switchTab({
-              url: '/pages/hello/index'
-            })
-          }, 1500)
-        }
-      })
-    },
+      setTimeout(() => {
+        const userInfo = {
+          userId: 'user_' + Date.now(),
+          phone: this.phone,
+          nickname: '用户' + this.phone.substring(7)
+        };
+        
+        // 模拟登录成功
+        this.$store.commit('setUser', userInfo);
+        uni.setStorageSync('token', 'mock_token_' + Date.now());
+        
+        uni.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500,
+          success: () => {
+            setTimeout(() => {
+              uni.switchTab({
+                url: '/pages/hello/index'
+              });
+            }, 1500);
+          }
+        });
+        
+        // 重置提交状态
+        this.isSubmitting = false;
+      }, 1000); // 模拟网络请求延迟
+    }, 300),
     viewTerms(type) {
       // 查看协议
-      const title = type === 'user' ? '用户协议' : '隐私政策'
+      const title = type === 'user' ? '用户协议' : '隐私政策';
       uni.showModal({
         title: title,
         content: `这是${title}内容，实际项目中应该跳转到协议页面或者展示完整协议内容。`,
         showCancel: false
-      })
+      });
     }
   },
   onUnload() {
     // 页面卸载时清除定时器
     if (this.timer) {
-      clearInterval(this.timer)
+      clearInterval(this.timer);
     }
   }
 }
@@ -203,83 +282,26 @@ export default {
   width: 100%;
 }
 
-.input-field {
-  width: 100%;
-  height: 48px;
-  border: 1px solid #E8E8E8;
-  border-radius: 8px;
-  padding: 0 16px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
 .verify-code-area {
   display: flex;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .verify-code-input {
   flex: 1;
   margin-right: 12px;
-  margin-bottom: 0;
 }
 
-.get-code-btn {
-  width: 120px;
-  height: 48px;
-  border: 1px solid #E8E8E8;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #333333;
-  background-color: #FFFFFF;
-}
-
-.login-btn {
-  width: 100%;
-  height: 48px;
-  background-color: #55C353;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.button-wrapper {
   margin-top: 8px;
 }
 
-.btn-text {
-  color: #FFFFFF;
-  font-size: 16px;
-}
-
 /* 协议区域 */
-.agreement-area {
+.agreement-wrapper {
   position: absolute;
   bottom: 40px;
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-}
-
-.agreement-text {
-  font-size: 12px;
-  color: #999999;
-}
-
-.agreement-link {
-  font-size: 12px;
-  color: #3B7AEB;
-}
-
-/* 修复输入框占位符颜色 */
-.input-field::placeholder {
-  color: #999999;
 }
 </style> 
