@@ -41,6 +41,7 @@ packages
 
 # UniApp platform specific
 src/hybrid/html/
+页面要求.md
 
 # Cache
 .cache
