@@ -1,0 +1,2 @@
+This directory is for static resources like images, fonts, etc.
+Please place the logo.png file in this directory.

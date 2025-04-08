@@ -1,0 +1,16 @@
+{
+  "pages": [
+    {
+      "path": "pages/hello/index",
+      "style": {
+        "navigationBarTitleText": "油菜籽成分检测系统"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "油菜籽成分检测系统",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  }
+} 
