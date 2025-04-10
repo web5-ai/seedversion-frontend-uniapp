@@ -9,25 +9,21 @@
         @click="handleItemClick(item)"
       >
         <view class="record-image" :style="imageBackgroundColor">
-          <image src="/static/images/canola.svg" mode="aspectFit" class="plant-icon" alt="油菜籽图标"></image>
+          <image :src="item.image" mode="aspectFit" class="plant-icon" alt="油菜籽图标"></image>
         </view>
         <view class="record-info">
           <view class="record-header">
-            <text class="record-date">{{ item.date }}</text>
+            <text class="record-date">{{ timestamp_trnsfer(item.create_time) }}</text>
             <text v-if="showTime && item.time" class="record-time">{{ item.time }}</text>
           </view>
           <view class="record-data">
             <view class="data-item">
-              <text class="data-label">油酸：</text>
-              <text class="data-value oil-value">{{ item.oilAcid }}</text>
+              <text class="data-label">油脂：</text>
+              <text class="data-value oil-value">{{ item.res.oil }}</text>
             </view>
             <view class="data-item">
-              <text class="data-label">亚油酸：</text>
-              <text class="data-value linoleic-value">{{ item.linoleicAcid }}</text>
-            </view>
-            <view class="data-item">
-              <text class="data-label">品质评级：</text>
-              <text class="data-value quality-value">{{ item.quality }}</text>
+              <text class="data-label">蛋白质：</text>
+              <text class="data-value linoleic-value">{{ item.res.protein }}</text>
             </view>
           </view>
         </view>
@@ -88,6 +84,27 @@ export default {
      */
     handleItemClick(item) {
       this.$emit('item-click', item);
+    },
+    timestamp_trnsfer(timestampInSeconds) {
+
+      // 将秒级时间戳转换为毫秒级时间戳
+      const timestampInMilliseconds = timestampInSeconds * 1000;
+
+      // 创建一个 Date 对象
+      const date = new Date(timestampInMilliseconds);
+
+      // 获取年、月、日、时、分、秒
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      // 组合成普通时间格式
+      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      return formattedDate;
     }
   }
 }
@@ -118,15 +135,15 @@ export default {
   width: 70px;
   height: 70px;
   border-radius: 4px;
-  margin-right: 12px;
+  margin-right: 12px; 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .plant-icon {
-  width: 40px;
-  height: 40px;
+  width: 65px;
+  height: 65px;
 }
 
 .record-info {

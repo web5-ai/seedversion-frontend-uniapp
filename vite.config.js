@@ -33,6 +33,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    open: true
+    open: true,
+	proxy: {
+		'/api':{
+			target: 'http://youcaihua-api.harmony-dev.com/',
+			changeOrigin: true,	
+		}
+		
+	}
   }
 }); 

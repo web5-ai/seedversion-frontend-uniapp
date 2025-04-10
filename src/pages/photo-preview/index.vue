@@ -8,7 +8,6 @@
           mode="aspectFit" 
           class="preview-image"
         />
-        
         <!-- 检测中状态显示 -->
         <view v-if="analyzing" class="analyzing-overlay">
           <view class="analyzing-content">
@@ -22,7 +21,15 @@
         </view>
       </view>
     </view>
-    
+    <!-- 模型选择区域 -->
+    <view class="model-select" v-if="!hasResult && source !== 'detail'">
+      <text class="model-select-label">选择模型:</text>
+      <picker :range="models" @change="onModelChange">
+        <view class="picker">
+          {{ selectedModel }}
+        </view>
+      </picker>
+    </view>
     <!-- 拍照提示区域 -->
     <view class="photo-tips" v-if="!hasResult && source !== 'detail'">
       <view class="tips-header">
@@ -49,7 +56,6 @@
         </view>
       </view>
     </view>
-    
     <!-- 检测结果区域 -->
     <view class="result-container" v-if="!analyzing && hasResult">
       <view class="result-card">
@@ -60,16 +66,12 @@
         
         <view class="result-content">
           <view class="result-item">
-            <text class="item-label">油酸含量</text>
-            <text class="item-value">{{ result.oilAcid }}</text>
+            <text class="item-label">油脂含量</text>
+            <text class="item-value">{{ result.oil }}</text>
           </view>
           <view class="result-item">
-            <text class="item-label">亚油酸含量</text>
-            <text class="item-value">{{ result.linoleicAcid }}</text>
-          </view>
-          <view class="result-item">
-            <text class="item-label">品质评级</text>
-            <text class="item-value quality-badge">{{ result.quality }}</text>
+            <text class="item-label">蛋白质含量</text>
+            <text class="item-value">{{ result.protein }}</text>
           </view>
         </view>
         
@@ -78,7 +80,6 @@
         </view>
       </view>
     </view>
-    
     <!-- 操作按钮区域（悬浮） -->
     <view class="floating-action-container">
       <view class="action-buttons">
@@ -111,26 +112,29 @@ export default {
     return {
       // 图片路径
       imagePath: '',
+      // 上传图片返回的链接,
+      imageUrl: '',
       // 是否正在分析中
       analyzing: false,
       // 是否有检测结果
       hasResult: false,
       // 检测结果数据
-      result: {
-        oilAcid: '--',
-        linoleicAcid: '--',
-        quality: '--'
-      },
+      result: { },
       // 来源（camera-相机拍照，album-相册选择）
       source: 'camera',
       // 记录ID
-      recordId: null
+      recordId: null,
+      // 可选模型列表
+      models: ['MPViT', 'ResNet', 'FasterNet', 'EfficientNet', 'Swin', 'VanillaNet'],
+      // 当前选中的模型
+      selectedModel: 'MPViT'
     }
   },
   onLoad(options) {
     // 从页面参数获取图片路径和来源
     if (options.imagePath) {
       this.imagePath = decodeURIComponent(options.imagePath);
+      // 获取图片本地路径
     }
     
     if (options.source) {
@@ -143,11 +147,10 @@ export default {
       // 从全局状态或持久化存储中获取记录详情
       // 这里为了演示，直接模拟加载结果
       setTimeout(() => {
-        this.result = {
-          oilAcid: '42.8%',
-          linoleicAcid: '23.5%',
-          quality: '优'
-        };
+        // this.result = {
+        //   oil: '42.8%',
+        //   protein: '23.5%',
+        // };
         this.hasResult = true;
       }, 500);
     }
@@ -160,38 +163,94 @@ export default {
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     },
-    
+    onModelChange(e) {
+    // 更新当前选中的模型
+    this.selectedModel = this.models[e.detail.value];
+    },
     // 开始分析图片
     handleAnalyze() {
-      this.analyzing = true;
+
+      uni.showLoading({
+                  title: '正在分析...分析完成后跳转到结果页', // 加载提示
+                  mask: true // 显示透明蒙层，防止触摸穿透s
+                })
+      this.analyzing = true;  
+      // 嵌套请求，先上传文件，成功后再进行分析，避免顺序错误
+      uni.uploadFile({
+        url: 'api/ajax/upload', // 替换为你的API地址
+        filePath: this.imagePath, // 图片路径
+        name: 'file', // 服务器端接收的字段名
+        header: {
+          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+          Server: true // 服务器端接收的字段名
+        },
+
+        success: (res) => {
+          // 检查res.data的形式
+          if (typeof res.data === 'string') {
+            res.data = JSON.parse(res.data); // 如果是字符串，尝试解析为JSON对象 
+          }
+          console.log('Upload successful: ', res.data); // 打印服务器返回的数据
+          this.imageUrl = res.data.data.file.url; // 保存图片URL
+          console.log('从json中获取图片链接: ', this.imageUrl); // 打印服务器返回的数据
+          // api/seed/predict
+          uni.request({
+            url: 'api/seed/predict', // 替换为你的API地址
+            method: 'POST', // 使用POST方法
+            data: {
+              'image': this.imageUrl,
+              'mod' : this.selectedModel
+            },
+
+            header: {
+              Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+              Server: true 
+            },
+            
+            success: (res) => {
+              if (res.data.code == 0) {
+                uni.showModal({
+                  title: '提示',
+                  content: res.data.msg, // 显示服务器返回的错误信息
+                  showCancel: false, // 隐藏取消按钮 
+                })
+                uni.hideLoading(); // 隐藏加载提示
+              }
+              else {
+                console.log(res.data); // 打印服务器返回的数据 
+                this.result = res.data.data
+                // 如果没有id手动加一个
+                if (!this.result.id) {
+                  this.result.id = Date.now().toString(); // 生成一个简单的ID 
+                }
+                console.log(this.result)
+                uni.hideLoading(); // 隐藏加载提示
+                this.hasResult = true;
+                // 保存结果到缓存以便结果页面获取
+                uni.setStorageSync('current_analysis_result', this.result);
+                // 发送事件，通知首页添加新记录
+                uni.$emit('addDetectionRecord', this.result);
+                // 分析完成，跳转到结果页面
+                uni.navigateTo({
+                  url: `/pages/result/index?recordId=${this.result.id}`
+                });
+              }
+            },
+
+            fail: (err) => {
+              console.error('Analysis failed:', err); 
+            }
+
+          })
+        },
+
+        fail: (err) => {
+          console.error('Upload failed:', err); // 打印错误信息
+        }
+      })
       
-      // 模拟分析过程
-      setTimeout(() => {
-        // 模拟检测结果
-        const result = {
-          id: Date.now().toString(),
-          date: this.formatDate(new Date()),
-          image: this.imagePath,
-          oilAcid: '42.8%',
-          linoleicAcid: '23.5%',
-          quality: '优'
-        };
-        
-        // 保存结果到缓存以便结果页面获取
-        uni.setStorageSync('current_analysis_result', result);
-        
-        // 发送事件，通知首页添加新记录
-        uni.$emit('addDetectionRecord', result);
-        
-        // 分析完成，跳转到结果页面
-        uni.navigateTo({
-          url: `/pages/result/index?recordId=${result.id}`
-        });
-        
-        this.analyzing = false;
-      }, 3000);
-      
-      // TODO: 实际项目中这里应该调用分析API
+      this.analyzing = false;
+
     },
     
     // 保存检测结果
@@ -201,9 +260,8 @@ export default {
         id: Date.now().toString(),
         date: this.formatDate(new Date()),
         image: this.imagePath,
-        oilAcid: this.result.oilAcid,
-        linoleicAcid: this.result.linoleicAcid,
-        quality: this.result.quality
+        oil: this.result.oil,
+        protein: this.result.protein,
       };
       
       // 发送事件，通知首页添加新记录
@@ -272,6 +330,29 @@ export default {
   width: 92%;
   height: 92%;
   object-fit: contain;
+}
+
+.model-select {
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 0 15px 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+}
+
+.model-select-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  margin-right: 10px;
+}
+
+.picker {
+  flex: 1;
+  font-size: 15px;
+  color: #666;
 }
 
 /* 拍照提示区域 */
@@ -444,14 +525,6 @@ export default {
   font-size: 16px;
   font-weight: 500;
   color: #333333;
-}
-
-.quality-badge {
-  background-color: #4CAF50;
-  color: white;
-  padding: 2px 12px;
-  border-radius: 12px;
-  font-size: 14px;
 }
 
 .result-footer {

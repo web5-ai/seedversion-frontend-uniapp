@@ -49,25 +49,7 @@ export default {
   },
   data() {
     return {
-      // 最近检测记录
-      recentRecords: [
-        {
-          id: '001',
-          date: '2023-12-25',
-          image: '/static/images/canola.svg',
-          oilAcid: '42.8%',
-          linoleicAcid: '23.5%',
-          quality: '优'
-        },
-        {
-          id: '002',
-          date: '2023-12-25',
-          image: '/static/images/canola.svg',
-          oilAcid: '42.8%',
-          linoleicAcid: '23.5%',
-          quality: '优'
-        }
-      ],
+      recentRecords: [],
       // 当前选择图片的来源（camera-相机拍照，album-相册选择）
       currentSource: 'camera'
     }
@@ -181,8 +163,8 @@ export default {
           id: Date.now().toString(),
           date: new Date().toISOString().split('T')[0],
           image: filePath,
-          oilAcid: '42.8%',
-          linoleicAcid: '23.5%',
+          oil: '42.8%',
+          protein: '23.5%',
           quality: '优'
         };
         

@@ -20,7 +20,7 @@
         <text class="view-full" @click="viewFullImage">点击查看原图</text>
       </view>
       <view class="sample-image-container">
-        <image :src="sampleData.imagePath" mode="aspectFill" class="sample-image" />
+        <image :src="analysisResult.image" mode="aspectFill" class="sample-image" />
       </view>
     </view>
 
@@ -28,60 +28,56 @@
     <view class="info-section">
       <view class="section-header">
         <text class="section-title">采集信息</text>
-        <view class="edit-button" @click="editInfo">编辑</view>
+        <view v-if="!isEditing" class="edit-button" @click="startEditing">编辑</view>
+        <view v-if="isEditing" class="edit-button-group">
+          <view class="save-button" @click="saveInfo">保存</view>
+          <view class="cancel-button" @click="cancelEditing">取消</view>
+        </view>
       </view>
       <view class="info-content">
         <view class="info-item">
           <text class="info-label">地点：</text>
-          <text class="info-value">{{ sampleData.location }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.location }}</view>
+          <input v-if="isEditing" v-model="saveData.location" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">品种：</text>
-          <text class="info-value">{{ sampleData.variety }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.variety }}</view>
+          <input v-if="isEditing" v-model="saveData.variety" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">批次：</text>
-          <text class="info-value">{{ sampleData.batchNumber }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.batchNumber }}</view>
+          <input v-if="isEditing" v-model="saveData.batchNumber" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">采集日期：</text>
-          <text class="info-value">{{ sampleData.collectionDate }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.collectionDate }}</view>
+          <input v-if="isEditing" v-model="saveData.collectionDate" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">种植方式：</text>
-          <text class="info-value">{{ sampleData.plantingMethod || '--' }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.plantingMethod || '--' }}</view>
+          <input v-if="isEditing" v-model="saveData.plantingMethod" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">收割方式：</text>
-          <text class="info-value">{{ sampleData.harvestMethod || '--' }}</text>
+          <view v-if="!isEditing" class="info-value">{{ saveData.harvestMethod || '--' }}</view>
+          <input v-if="isEditing" v-model="saveData.harvestMethod" class="info-input" />
         </view>
       </view>
     </view>
 
     <!-- 模型选择区域 -->
     <view class="model-section">
-      <view class="section-header">
+      <view class="model-picker-container">
         <text class="section-title">模型选择</text>
-      </view>
-      <view class="model-options">
-        <view class="model-option" :class="{ active: selectedModel === 'resnet' }" @click="selectModel('resnet')">
-          <view class="model-radio">
-            <view class="radio-inner" v-if="selectedModel === 'resnet'"></view>
+        <picker :range="models" @change="onModelChange">
+          <view class="picker">
+            <text>{{ selectedModel }}</text>
+            <text class="arrow-down">▼</text>
           </view>
-          <text class="model-name">Resnet</text>
-        </view>
-        <view class="model-option" :class="{ active: selectedModel === 'vgg' }" @click="selectModel('vgg')">
-          <view class="model-radio">
-            <view class="radio-inner" v-if="selectedModel === 'vgg'"></view>
-          </view>
-          <text class="model-name">Vgg</text>
-        </view>
-        <view class="model-option" :class="{ active: selectedModel === 'fastnet' }" @click="selectModel('fastnet')">
-          <view class="model-radio">
-            <view class="radio-inner" v-if="selectedModel === 'fastnet'"></view>
-          </view>
-          <text class="model-name">Fastnet</text>
-        </view>
+        </picker>
       </view>
     </view>
 
@@ -91,24 +87,15 @@
         <text class="section-title">主要成分含量</text>
       </view>
       <view class="result-chart">
-        <view v-for="(item, index) in components" :key="index" class="chart-item">
-          <view class="chart-label">{{ item.name }}</view>
+        <!-- 修改循环遍历的数据 -->
+        <view v-for="(field, index) in ['oil', 'protein']" :key="index" class="chart-item">
+          <view class="chart-label">{{ field === 'oil' ? '油脂' : '蛋白质' }}</view>
           <view class="chart-bar-container">
-            <view class="chart-bar" :style="{ width: item.percentage + '%' }">
-              <text class="chart-value">{{ item.value }}</text>
+            <view class="chart-bar" :style="{ width: analysisResult.res[field] + '%' }">
+              <text class="chart-value">{{ analysisResult.res[field] }}</text>
             </view>
           </view>
         </view>
-      </view>
-    </view>
-
-    <!-- 分析结论 -->
-    <view class="conclusion-section">
-      <view class="section-header">
-        <text class="section-title">分析结论</text>
-      </view>
-      <view class="conclusion-content">
-        <text class="conclusion-text">{{ analysis.conclusion }}</text>
       </view>
     </view>
 
@@ -123,10 +110,12 @@
 export default {
   data() {
     return {
+      // 修改为新的模型列表
+      models: ['MPViT', 'ResNet', 'FasterNet', 'EfficientNet', 'Swin', 'VanillaNet'],
       // 模型选择
-      selectedModel: 'vgg',
+      selectedModel: 'FasterNet', // 默认选择 ResNet
       // 样本数据
-      sampleData: {
+      saveData: {
         id: 'S20230325001',
         imagePath: '/static/images/canola.jpg',
         location: '湖北荆州',
@@ -136,22 +125,10 @@ export default {
         plantingMethod: '',
         harvestMethod: ''
       },
-      // 成分数据
-      components: [
-        { name: '油酸', value: '42.8%', percentage: 85.6 },
-        { name: '亚油酸', value: '23.5%', percentage: 47 },
-        { name: '亚麻酸', value: '12.3%', percentage: 24.6 },
-        { name: '棕榈酸', value: '8.7%', percentage: 17.4 },
-        { name: '硬脂酸', value: '7.9%', percentage: 15.8 }
-      ],
-      // 分析结论
-      analysis: {
-        conclusion: '该样本油酸含量较高，品质较好适合加工高品质食用油',
-        quality: '优',
-        recommendation: '适合加工高品质食用油'
-      },
       isLoading: true,
-      analysisResult: null
+      analysisResult: null,
+      isEditing: false, // 编辑状态标识
+      originalSampleData: {} // 保存原始数据，用于取消编辑时恢复
     };
   },
   onLoad(options) {
@@ -168,7 +145,7 @@ export default {
     goBack() {
       uni.navigateBack();
     },
-    
+
     // 分享结果
     shareResult() {
       uni.showActionSheet({
@@ -182,72 +159,86 @@ export default {
         }
       });
     },
-    
+
     // 查看原图
     viewFullImage() {
       uni.previewImage({
-        urls: [this.sampleData.imagePath],
-        current: this.sampleData.imagePath
+        urls: [this.saveData.imagePath],
+        current: this.saveData.imagePath
       });
     },
-    
-    // 编辑采集信息
-    editInfo() {
-      uni.showModal({
-        title: '提示',
-        content: '编辑功能开发中',
-        showCancel: false
+
+    // 开始编辑
+    startEditing() {
+      this.isEditing = true;
+      this.originalSampleData = { ...this.saveData }; // 保存原始数据
+    },
+
+    // 保存信息
+    saveInfo() {
+      uni.request({
+        url: 'api/seed/save',
+        method: 'POST',
+        data: {
+          id: this.analysisResult.id, // 假设ID是从结果中获取的
+          type: this.saveData.variety, // 假设类型是从结果中获取的
+          address: this.saveData.location, // 假设地址是从结果中获取的
+          planting_way: this.saveData.plantingMethod, // 假设种植方式是从结果中获取的
+          harvest_way: this.saveData.harvestMethod, // 假设收割方式是从结果中获取的
+        },
+        header: {
+          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U', 
+          Server: true
+        },
+        success: (res) => {
+            uni.showToast({
+              title: '保存成功',
+              icon: 'success'
+            });
+            this.isEditing = false;
+        },
+        fail: (err) => {
+          uni.showToast({
+            title: '请求失败',
+            icon: 'none'
+          });
+        }
       });
     },
-    
+
+    // 取消编辑
+    cancelEditing() {
+      this.saveData = { ...this.originalSampleData }; // 恢复原始数据
+      this.isEditing = false;
+    },
+
+    onModelChange(e) {
+      this.selectedModel = this.models[e.detail.value];
+      // 调用原来的选择模型逻辑
+      this.selectModel();
+    },
     // 选择模型
-    selectModel(model) {
-      if (this.selectedModel === model) return;
-      
-      this.selectedModel = model;
-      
+    selectModel() {
       // 显示加载中
       uni.showLoading({
         title: '重新分析中...'
       });
-      
-      // 模拟不同模型的分析结果
       setTimeout(() => {
-        if (model === 'resnet') {
-          this.components[0].value = '41.2%';
-          this.components[0].percentage = 82.4;
-          this.components[1].value = '24.1%';
-          this.components[1].percentage = 48.2;
-        } else if (model === 'vgg') {
-          this.components[0].value = '42.8%';
-          this.components[0].percentage = 85.6;
-          this.components[1].value = '23.5%';
-          this.components[1].percentage = 47;
-        } else if (model === 'fastnet') {
-          this.components[0].value = '43.5%';
-          this.components[0].percentage = 87;
-          this.components[1].value = '22.9%';
-          this.components[1].percentage = 45.8;
-        }
-        
-        uni.hideLoading();
-      }, 1000);
+        uni.hideLoading(); 
+      }, 500);
+
     },
-    
+
     // 跳转到反馈页面
     saveReport() {
       // 跳转到反馈页面，传入记录ID
       uni.navigateTo({
-        url: `/pages/feedback/index?recordId=${this.sampleData.id}`
+        url: `/pages/feedback/index?recordId=${this.saveData.id}`
       });
     },
     simulateLoadingResult() {
       // 如果有缓存的分析结果，直接加载
-      const cachedResult = uni.getStorageSync('lastAnalysisResult');
-      if (cachedResult) {
-        this.analysisResult = JSON.parse(cachedResult);
-        this.isLoading = false;
-      }
+      this.analysisResult = uni.getStorageSync('current_analysis_result');
     }
   }
 }
@@ -348,6 +339,30 @@ export default {
   object-fit: cover;
 }
 
+.model-picker-container {
+  display: flex;
+  padding: 25px;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
+.picker {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #f0f0f0; /* 添加边框以便区分 */
+  border-radius: 5px; /* 圆角边框 */
+  width: 100px; /* 设置宽度 */
+}
+
+.arrow-down {
+  font-size: 12px;
+  color: #999;
+}
+
 /* 信息区域 */
 .info-section {
   background: white;
@@ -373,6 +388,21 @@ export default {
   font-size: 13px;
 }
 
+.edit-button-group {
+  display: flex;
+}
+
+.save-button {
+  color: #4CAF50;
+  font-size: 13px;
+  margin-right: 10px;
+}
+
+.cancel-button {
+  color: #999;
+  font-size: 13px;
+}
+
 .info-content {
   padding: 15px;
 }
@@ -391,6 +421,14 @@ export default {
 .info-value {
   flex: 1;
   color: #333;
+  font-size: 14px;
+}
+
+.info-input {
+  flex: 1;
+  border: 1px solid #f0f0f0;
+  border-radius: 3px;
+  padding: 5px;
   font-size: 14px;
 }
 
@@ -522,4 +560,4 @@ export default {
   font-size: 16px;
   text-align: center;
 }
-</style> 
+</style>

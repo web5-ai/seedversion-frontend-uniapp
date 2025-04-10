@@ -154,6 +154,45 @@ export default {
         icon: 'success'
       });
     },
+	
+    login_success() {
+      const userInfo = {
+        userId: 'user_' + Date.now(),
+        phone: this.phone,
+        nickname: '用户' + this.phone.substring(7)
+      };
+      
+      // 模拟登录成功
+      try {
+        this.$store.commit('setUser', userInfo);
+      } catch (e) {
+        console.error('存储用户信息失败:', e);
+      }
+      
+      uni.setStorageSync('token', 'mock_token_' + Date.now());
+      
+      uni.showToast({
+        title: '登录成功',
+        icon: 'success',
+        duration: 1000,
+        success: () => {
+          // 登录成功后跳转到主页（检测页面）
+          uni.switchTab({
+            url: '/pages/index/index',
+            fail: (err) => {
+              console.error('跳转到主页失败:', err);
+              // 如果跳转失败，尝试使用redirectTo
+              uni.redirectTo({
+                url: '/pages/index/index'
+              });
+            }
+          });
+        }
+      });
+      
+      // 重置提交状态
+      this.isSubmitting = false;
+    },
     handleLogin() {
       // 验证输入
       this.validatePhone();
@@ -181,47 +220,70 @@ export default {
       // 设置提交状态
       this.isSubmitting = true;
       
-      // TODO: 调用登录API
-      setTimeout(() => {
-        const userInfo = {
-          userId: 'user_' + Date.now(),
+      // 调用登录api api/user/loginByPhone
+      uni.request({
+        url: 'api/user/loginByPhone', // 替换为你的API地址
+        method: 'POST',
+        data: {
           phone: this.phone,
-          nickname: '用户' + this.phone.substring(7)
-        };
-        
-        // 模拟登录成功
-        try {
-          this.$store.commit('setUser', userInfo);
-        } catch (e) {
-          console.error('存储用户信息失败:', e);
+          code: this.verifyCode
+        },
+
+        header: {
+          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+          Server: true
+        },
+
+        success: (res) => {
+          this.login_success();
+          console.log('登录成功:', res);
+        },
+        fail: (err) => {
+          console.error('登录失败:', err); 
         }
+      })
+
+      // // TODO: 调用登录API
+      // setTimeout(() => {
+      //   const userInfo = {
+      //     userId: 'user_' + Date.now(),
+      //     phone: this.phone,
+      //     nickname: '用户' + this.phone.substring(7)
+      //   };
         
-        uni.setStorageSync('token', 'mock_token_' + Date.now());
+      //   // 模拟登录成功
+      //   try {
+      //     this.$store.commit('setUser', userInfo);
+      //   } catch (e) {
+      //     console.error('存储用户信息失败:', e);
+      //   }
         
-        uni.showToast({
-          title: '登录成功',
-          icon: 'success',
-          duration: 1500,
-          success: () => {
-            // 登录成功后跳转到主页（检测页面）
-            setTimeout(() => {
-              uni.switchTab({
-                url: '/pages/index/index',
-                fail: (err) => {
-                  console.error('跳转到主页失败:', err);
-                  // 如果跳转失败，尝试使用redirectTo
-                  uni.redirectTo({
-                    url: '/pages/index/index'
-                  });
-                }
-              });
-            }, 1500); // 等待提示显示完毕后再跳转
-          }
-        });
+      //   uni.setStorageSync('token', 'mock_token_' + Date.now());
         
-        // 重置提交状态
-        this.isSubmitting = false;
-      }, 1000); // 模拟网络请求延迟
+      //   uni.showToast({
+      //     title: '登录成功',
+      //     icon: 'success',
+      //     duration: 1500,
+      //     success: () => {
+      //       // 登录成功后跳转到主页（检测页面）
+      //       setTimeout(() => {
+      //         uni.switchTab({
+      //           url: '/pages/index/index',
+      //           fail: (err) => {
+      //             console.error('跳转到主页失败:', err);
+      //             // 如果跳转失败，尝试使用redirectTo
+      //             uni.redirectTo({
+      //               url: '/pages/index/index'
+      //             });
+      //           }
+      //         });
+      //       }, 1500); // 等待提示显示完毕后再跳转
+      //     }
+      //   });
+        
+      //   // 重置提交状态
+      //   this.isSubmitting = false;
+      // }, 1000); // 模拟网络请求延迟
     },
     viewTerms(type) {
       // 查看协议
