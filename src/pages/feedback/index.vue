@@ -15,17 +15,17 @@
     <view class="feedback-container">
       <!-- 样本预览 -->
       <view class="sample-preview">
-        <image :src="sampleImage" mode="aspectFill" class="sample-image" />
+        <image :src="feedbackData.image" mode="aspectFill" class="sample-image" />
         <view class="sample-info">
           <view class="info-row">
-            <text class="info-label">油酸含量:</text>
-            <text class="info-value">{{ sampleData.oilAcid }}</text>
+            <text class="info-label">油脂含量:</text>
+            <text class="info-value">{{ feedbackData.res.oil }}</text>
           </view>
           <view class="info-row">
-            <text class="info-label">亚油酸含量:</text>
-            <text class="info-value">{{ sampleData.linoleicAcid }}</text>
+            <text class="info-label">蛋白质含量:</text>
+            <text class="info-value">{{ feedbackData.res.protein }}</text>
           </view>
-          <view class="quality-badge">{{ sampleData.quality }}</view>
+          <view class="quality-badge">{{ feedbackData.quality }}</view>
         </view>
       </view>
 
@@ -70,16 +70,16 @@
         <view class="section-title">实际成分信息（如有）</view>
         <view class="input-group">
           <view class="input-row">
-            <text class="input-label">油酸含量:</text>
+            <text class="input-label">油脂含量:</text>
             <view class="input-container">
-              <input type="digit" v-model="actualOilAcid" class="input-field" placeholder="请输入实际油酸含量" />
+              <input type="digit" v-model="actualOil" class="input-field" placeholder="请输入实际油脂含量" />
               <text class="input-suffix">%</text>
             </view>
           </view>
           <view class="input-row">
-            <text class="input-label">亚油酸含量:</text>
+            <text class="input-label">蛋白质含量:</text>
             <view class="input-container">
-              <input type="digit" v-model="actualLinoleicAcid" class="input-field" placeholder="请输入实际亚油酸含量" />
+              <input type="digit" v-model="actualProtein" class="input-field" placeholder="请输入实际蛋白质含量" />
               <text class="input-suffix">%</text>
             </view>
           </view>
@@ -126,16 +126,7 @@
 export default {
   data() {
     return {
-      // 样本图片
-      sampleImage: '',
-      // 样本数据
-      sampleData: {
-        recordId: '',
-        oilAcid: '42.8%',
-        linoleicAcid: '23.5%',
-        quality: '优'
-      },
-      // 反馈选项
+      feedbackData: {}, // 从上一页传来的数据
       feedbackOptions: [
         { label: '结果准确', value: 'accurate' },
         { label: '结果不准确', value: 'inaccurate' },
@@ -143,38 +134,35 @@ export default {
         { label: '界面体验', value: 'ui' },
         { label: '其他问题', value: 'other' }
       ],
-      // 选中的反馈类型
-      selectedFeedback: 0,
-      // 准确性评分 (1-5)
-      accuracyRating: 0,
-      // 实际油酸含量
-      actualOilAcid: '',
-      // 实际亚油酸含量
-      actualLinoleicAcid: '',
-      // 反馈内容
-      feedbackContent: '',
-      // 联系方式
-      contactInfo: '',
-      // 记录详情
-      recordDetails: {}
+      selectedFeedback: 0,        // 选中的反馈类型索引
+      accuracyRating: 0,          // 准确性评分 (1-5)
+      feedbackContent: '',        // 反馈内容
+      actualOil: '',              // 实际油脂含量
+      actualProtein: '',          // 实际蛋白质含量
+      contactInfo: ''             // 联系方式
     }
   },
   computed: {
     // 验证反馈是否有效
     isValidFeedback() {
       return this.selectedFeedback !== null && this.accuracyRating > 0;
-    },
-    
-    // 获取评分对应的文字描述
-    ratingLabel() {
-      return this.getRatingLabel(this.accuracyRating);
     }
   },
   onLoad(options) {
-    // 如果有记录ID参数，表示用户正在对某条检测记录提交反馈
+    // 获取上一页传递的数据
     if (options.recordId) {
-      this.sampleData.recordId = options.recordId;
-      this.loadRecordDetails(options.recordId);
+      this.feedbackData = uni.getStorageSync('feedbackData');
+      console.log('Feedback data:', this.feedbackData);
+      // /api/feedback/detail
+      uni.request({
+        url: 'api/feedback/detail',
+        method: 'POST',
+        data: { id: options.recordId }, 
+        header: {
+          Authorization: uni.getStorageSync('token'),
+          Server: true // 服务器端接收的字段名 
+        }
+      })
     }
   },
   methods: {
@@ -193,65 +181,79 @@ export default {
       this.accuracyRating = rating;
     },
     
-    // 获取评分对应的文字描述
+    // 获取评分文字描述
     getRatingLabel(rating) {
       const labels = ['', '很不准确', '不太准确', '一般', '比较准确', '非常准确'];
       return labels[rating] || '';
     },
-    
+
     // 提交反馈
-    submitFeedback() {
+    async submitFeedback() {
       if (!this.isValidFeedback) return;
-      
-      // 构建反馈数据
-      const feedbackData = {
-        recordId: this.sampleData.recordId,
-        feedbackType: this.feedbackOptions[this.selectedFeedback].value,
-        accuracyRating: this.accuracyRating,
-        content: this.feedbackContent,
-        contactInfo: this.contactInfo,
-        timestamp: new Date().toISOString()
-      };
-      
-      // 如果是不准确的反馈，添加实际成分数据
-      if (this.selectedFeedback === 1) {
-        feedbackData.actualData = {
-          oilAcid: this.actualOilAcid ? `${this.actualOilAcid}%` : '',
-          linoleicAcid: this.actualLinoleicAcid ? `${this.actualLinoleicAcid}%` : ''
+
+      try {
+        uni.showLoading({ title: '提交中...' });
+
+        const feedbackData = {
+          id: this.feedbackData.id,                                    // 记录ID
+          score: this.accuracyRating,                                 // 评分
+          types: this.feedbackOptions[this.selectedFeedback].value,   // 反馈类型值
+          types_msg: this.feedbackOptions[this.selectedFeedback].label, // 反馈类型文字
+          detail: this.buildDetailContent(),                          // 详细内容
+          images: [this.feedbackData.image]                           // 图片URL数组
         };
+
+        const res = await uni.request({
+          url: '/api/feedback/add',
+          method: 'POST',
+          data: feedbackData,
+          header: {
+            Authorization: uni.getStorageSync('token'),
+            Server: true
+          }
+        });
+
+        uni.hideLoading();
+
+        if (res.data.code === 1) {
+          uni.showToast({
+            title: '反馈提交成功',
+            icon: 'success',
+            duration: 2000
+          });
+          
+          setTimeout(() => uni.navigateBack(), 2000);
+        } else {
+          throw new Error(res.data.msg || '提交失败');
+        }
+
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({
+          title: error.message || '提交失败',
+          icon: 'none'
+        });
       }
-      
-      console.log('提交反馈:', feedbackData);
-      
-      // TODO: 实际项目中这里应该调用API提交反馈
-      
-      // 显示提交成功提示
-      uni.showToast({
-        title: '反馈已提交，感谢您的参与！',
-        icon: 'success',
-        duration: 2000
-      });
-      
-      // 延迟返回上一页
-      setTimeout(() => {
-        uni.navigateBack();
-      }, 2000);
     },
-    // 加载检测记录详情
-    loadRecordDetails(recordId) {
-      // TODO: 实现从服务器获取检测记录详情
-      
-      // 模拟数据
-      this.recordDetails = {
-        id: recordId,
-        date: this.formatDate(new Date()),
-        components: '亚油酸: 35.2%, 亚麻酸: 8.6%',
-        quality: '优'
-      };
-    },
-    // 格式化日期
-    formatDate(date) {
-      return date.toLocaleDateString();
+
+    // 构建详细反馈内容
+    buildDetailContent() {
+      let detail = this.feedbackContent;
+
+      // 如果是"结果不准确"且填写了实际值，添加到详细内容中
+      if (this.selectedFeedback === 1) {
+        if (this.actualOil || this.actualProtein) {
+          detail += '\n\n实际数据：';
+          if (this.actualOil) detail += `\n油脂含量: ${this.actualOil}%`;
+          if (this.actualProtein) detail += `\n蛋白质含量: ${this.actualProtein}%`;
+        }
+      }
+
+      if (this.contactInfo) {
+        detail += `\n\n联系方式: ${this.contactInfo}`;
+      }
+
+      return detail;
     }
   }
 }

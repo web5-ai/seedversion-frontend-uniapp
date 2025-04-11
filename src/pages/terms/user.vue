@@ -1,12 +1,5 @@
 <template>
   <view class="page-container">
-    <!-- 页面头部 -->
-    <view class="page-header">
-      <view class="back-btn" @click="goBack">
-        <image src="/static/icons/back.svg" class="back-icon"></image>
-      </view>
-      <view class="header-title">用户协议</view>
-    </view>
 
     <!-- 协议内容 -->
     <scroll-view class="content" scroll-y>

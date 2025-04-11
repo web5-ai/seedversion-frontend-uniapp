@@ -155,22 +155,45 @@ export default {
       });
     },
 	
-    login_success() {
-      const userInfo = {
-        userId: 'user_' + Date.now(),
-        phone: this.phone,
-        nickname: '用户' + this.phone.substring(7)
-      };
+    login_success(res) {
+      const userInfo = {};
+      // /api/user/info
+      uni.request({
+        url: 'api/user/info', // 替换为你的API地址
+        method: 'POST',
+        header: {
+          Authorization: res.data.data.token, // 使用登录接口返回的token
+          Server: true // 服务器端接收的字段名 
+        },
+        data: {
+          phone: this.phone, // 发送手机号以获取用户信息
+          code: this.verifyCode // 发送验证码以验证用户 
+        },
+        success: (res) => {
+          if (res.data.code === 401) {
+            uni.showToast({
+              title: res.data.msg, // 显示错误信息
+              icon: 'none' // 显示错误图标
+            });
+            return; // 登录失败，不继续执行
+          }
+         userInfo.userId = res.data.data.id; // 假设服务器返回用户ID
+         userInfo.nickname = res.data.data.nickname; // 假设服务器返回昵称
+         userInfo.phone = res.data.data.mobile; // 假设服务器返回手机号
+         userInfo.avatar = res.data.data.avatar; // 假设服务器返回头像
+         userInfo.gender = res.data.data.gender; // 假设服务器返回性别
+         userInfo.birthday = res.data.data.birthday; // 假设服务器返回生日
+         userInfo.address = res.data.data.address; // 假设服务器返回地址
+         userInfo.email = res.data.data.email; // 假设服务器返回邮箱
+         uni.setStorageSync('userInfo', userInfo);
+        },
+
+      })
+
+    
       
-      // 模拟登录成功
-      try {
-        this.$store.commit('setUser', userInfo);
-      } catch (e) {
-        console.error('存储用户信息失败:', e);
-      }
-      
-      uni.setStorageSync('token', 'mock_token_' + Date.now());
-      
+      uni.setStorageSync('token', res.data.data.token);
+      // console.log('获得token: ', res.data.data.token)
       uni.showToast({
         title: '登录成功',
         icon: 'success',
@@ -230,60 +253,28 @@ export default {
         },
 
         header: {
-          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+          // Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
           Server: true
         },
 
         success: (res) => {
-          this.login_success();
-          console.log('登录成功:', res);
+          if (res.data.code === 1){
+            this.login_success(res);
+            uni.showToast({
+              title: res.data.msg,
+              icon: '登录成功' 
+            })
+          }
+          else {
+            uni.showToast({
+              title: res.data.msg,
+              icon: 'none'
+            }); 
+          }
         },
-        fail: (err) => {
-          console.error('登录失败:', err); 
-        }
       })
 
-      // // TODO: 调用登录API
-      // setTimeout(() => {
-      //   const userInfo = {
-      //     userId: 'user_' + Date.now(),
-      //     phone: this.phone,
-      //     nickname: '用户' + this.phone.substring(7)
-      //   };
-        
-      //   // 模拟登录成功
-      //   try {
-      //     this.$store.commit('setUser', userInfo);
-      //   } catch (e) {
-      //     console.error('存储用户信息失败:', e);
-      //   }
-        
-      //   uni.setStorageSync('token', 'mock_token_' + Date.now());
-        
-      //   uni.showToast({
-      //     title: '登录成功',
-      //     icon: 'success',
-      //     duration: 1500,
-      //     success: () => {
-      //       // 登录成功后跳转到主页（检测页面）
-      //       setTimeout(() => {
-      //         uni.switchTab({
-      //           url: '/pages/index/index',
-      //           fail: (err) => {
-      //             console.error('跳转到主页失败:', err);
-      //             // 如果跳转失败，尝试使用redirectTo
-      //             uni.redirectTo({
-      //               url: '/pages/index/index'
-      //             });
-      //           }
-      //         });
-      //       }, 1500); // 等待提示显示完毕后再跳转
-      //     }
-      //   });
-        
-      //   // 重置提交状态
-      //   this.isSubmitting = false;
-      // }, 1000); // 模拟网络请求延迟
+
     },
     viewTerms(type) {
       // 查看协议

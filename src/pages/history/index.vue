@@ -52,7 +52,7 @@ export default {
           limit: 10,
         }, 
         header: {
-          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+          Authorization: uni.getStorageSync('token'),
           Server: true // 服务器端接收的字段名
         },
         success: (res) => {

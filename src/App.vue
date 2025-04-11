@@ -16,24 +16,6 @@ export default {
   onHide: function() {
     // App 从前台进入后台时触发
   },
-  methods: {
-    getUserInfo() {
-      // 模拟获取用户信息
-      const userInfo = {
-        username: 'testuser',
-        name: '测试用户',
-        email: 'test@example.com',
-        avatar: '/static/icons/user-avatar.png'
-      };
-      
-      // 将用户信息存储到Vuex
-      try {
-        this.$store.commit('SET_USER_INFO', userInfo);
-      } catch (e) {
-        console.error('存储用户信息失败:', e);
-      }
-    }
-  }
 }
 </script>
 

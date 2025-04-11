@@ -127,7 +127,7 @@ export default {
       // 可选模型列表
       models: ['MPViT', 'ResNet', 'FasterNet', 'EfficientNet', 'Swin', 'VanillaNet'],
       // 当前选中的模型
-      selectedModel: 'MPViT'
+      selectedModel: 'FasterNet'
     }
   },
   onLoad(options) {
@@ -181,7 +181,7 @@ export default {
         filePath: this.imagePath, // 图片路径
         name: 'file', // 服务器端接收的字段名
         header: {
-          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+          Authorization: uni.getStorageSync('token'),
           Server: true // 服务器端接收的字段名
         },
 
@@ -203,7 +203,7 @@ export default {
             },
 
             header: {
-              Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
+              Authorization: uni.getStorageSync('token'),
               Server: true 
             },
             
@@ -219,15 +219,9 @@ export default {
               else {
                 console.log(res.data); // 打印服务器返回的数据 
                 this.result = res.data.data
-                // 如果没有id手动加一个
-                if (!this.result.id) {
-                  this.result.id = Date.now().toString(); // 生成一个简单的ID 
-                }
                 console.log(this.result)
                 uni.hideLoading(); // 隐藏加载提示
                 this.hasResult = true;
-                // 保存结果到缓存以便结果页面获取
-                uni.setStorageSync('current_analysis_result', this.result);
                 // 发送事件，通知首页添加新记录
                 uni.$emit('addDetectionRecord', this.result);
                 // 分析完成，跳转到结果页面

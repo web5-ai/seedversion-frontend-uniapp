@@ -3,7 +3,7 @@
     <!-- 顶部背景和用户信息 -->
     <view class="profile-header">
       <view class="user-info">
-        <image class="avatar" src="/static/images/avatar-default.svg" mode="aspectFill" alt="用户头像"></image>
+        <image class="avatar" :src="userInfo.avatar" mode="aspectFill" alt="用户头像"></image>
         <view class="user-details">
           <text class="username">{{ userInfo.nickname || '未登录' }}</text>
           <text v-if="userInfo.isLoggedIn" class="user-id">ID: {{ userInfo.userId }}</text>
@@ -125,14 +125,14 @@
       
       <!-- 版本信息 -->
       <view class="version-info">
-        <text>版本 v1.0.0</text>
+        <text>版本 {{ appConfig.version }}</text>
       </view>
     </view>
   </view>
 </template>
 
 <script>
-import IconSvg from '@/components/common/IconSvg.vue';
+import IconSvg from '@/components/common/IconSvg.vue'
 
 export default {
   components: {
@@ -140,147 +140,163 @@ export default {
   },
   data() {
     return {
-      // 用户信息
       userInfo: {
-        isLoggedIn: false, // 默认未登录状态
+        isLoggedIn: false,
         nickname: '',
         userId: '',
-        avatar: '/static/images/avatar-default.svg'
+        avatar: '/static/images/avatar.svg',
+        phone: ''
+      },
+      appConfig: {
+        version: '1.0.0',
+        serverBaseUrl: ''
       }
     }
   },
   onShow() {
-    // 每次页面显示时检查登录状态
-    this.checkLoginStatus();
+    this.checkLoginStatus()
   },
   onLoad() {
-    // 页面加载时检查登录状态
-    this.checkLoginStatus();
+    this.checkLoginStatus()
+    this.loadAppConfig()
   },
   methods: {
+    // 加载应用配置
+    loadAppConfig() {
+      try {
+        const config = uni.getStorageSync('appConfig')
+        if (config) {
+          this.appConfig = config
+        }
+      } catch (e) {
+        console.error('加载应用配置失败:', e)
+      }
+    },
+
     // 检查登录状态
     checkLoginStatus() {
       try {
-        // 从store获取用户信息
-        const storeUser = this.$store?.state?.user;
-        const token = uni.getStorageSync('token');
+        const token = uni.getStorageSync('token')
+        const storedUserInfo = uni.getStorageSync('userInfo')
         
-        if ((storeUser && storeUser.isLoggedIn) || token) {
-          this.loadUserInfo();
+        if (token && storedUserInfo) {
+          this.loadUserInfo()
         } else {
-          // 未登录，跳转到登录页
-          this.redirectToLogin();
+          this.redirectToLogin()
         }
       } catch (e) {
-        console.error('检查登录状态失败:', e);
-        this.redirectToLogin();
+        console.error('检查登录状态失败:', e)
+        this.redirectToLogin()
       }
     },
-    
-    // 重定向到登录页
-    redirectToLogin() {
-      // 使用重定向而不是普通导航，防止用户通过返回按钮回到未登录的页面
-      uni.redirectTo({
-        url: '/pages/login/index'
-      });
-    },
-    
+
     // 加载用户信息
-    loadUserInfo() {
+    async loadUserInfo() {
       try {
-        // 从store获取用户信息
-        const storeUser = this.$store?.state?.user;
-        if (storeUser && storeUser.isLoggedIn) {
+        const storedUserInfo = uni.getStorageSync('userInfo')
+        if (storedUserInfo) {
           this.userInfo = {
-            isLoggedIn: storeUser.isLoggedIn,
-            nickname: storeUser.nickname,
-            userId: storeUser.userId,
-            avatar: storeUser.avatar || '/static/images/avatar-default.svg'
-          };
+            ...this.userInfo,
+            ...storedUserInfo,
+            isLoggedIn: true
+          }
         } else {
-          // 如果store中没有用户信息，尝试从本地存储获取token
-          const token = uni.getStorageSync('token');
+          // 如果本地没有用户信息，调用API获取
+          const token = uni.getStorageSync('token')
           if (token) {
-            // 有token，可以调用获取用户信息的action
-            this.$store.dispatch('getUserInfo').then(userInfo => {
-              if (userInfo) {
-                this.userInfo = {
-                  isLoggedIn: true,
-                  nickname: userInfo.nickname,
-                  userId: userInfo.userId,
-                  avatar: userInfo.avatar || '/static/images/avatar-default.svg'
-                };
-              } else {
-                // 获取用户信息失败，可能token已失效
-                this.redirectToLogin();
+            const userInfo = await this.fetchUserInfo(token)
+            if (userInfo) {
+              this.userInfo = {
+                ...this.userInfo,
+                ...userInfo,
+                isLoggedIn: true
               }
-            }).catch(() => {
-              // API调用失败，可能是token无效
-              this.redirectToLogin();
-            });
+              // 保存到本地存储
+              uni.setStorageSync('userInfo', this.userInfo)
+            } else {
+              this.redirectToLogin()
+            }
           } else {
-            // 没有token，跳转到登录页
-            this.redirectToLogin();
+            this.redirectToLogin()
           }
         }
       } catch (e) {
-        console.error('获取用户信息失败:', e);
-        this.redirectToLogin();
+        console.error('加载用户信息失败:', e)
+        this.redirectToLogin()
       }
     },
-    
+
+    // 从服务器获取用户信息
+    async fetchUserInfo(token) {
+      return new Promise((resolve, reject) => {
+        uni.request({
+          url: `${this.appConfig.serverBaseUrl}/api/user/info`,
+          method: 'GET',
+          header: {
+            Authorization: token
+          },
+          success: (res) => {
+            if (res.data && res.data.code === 0) {
+              resolve(res.data.data)
+            } else {
+              reject(new Error('获取用户信息失败'))
+            }
+          },
+          fail: (err) => {
+            reject(err)
+          }
+        })
+      })
+    },
+
+    // 重定向到登录页
+    redirectToLogin() {
+      uni.redirectTo({
+        url: '/pages/login/index'
+      })
+    },
+
     // 跳转到登录页
     goToLogin() {
       uni.navigateTo({
         url: '/pages/login/index'
-      });
+      })
     },
-    
+
     // 切换到历史记录Tab
     switchToHistoryTab() {
       uni.switchTab({
         url: '/pages/history/index'
-      });
+      })
     },
-    
+
     // 跳转到指定页面
     navigateTo(url) {
-      // 处理未实现的功能
       if (url.includes('/pages/favorite/index') || 
           url.includes('/pages/settings/account') ||
           url.includes('/pages/settings/security')) {
-        this.showDevelopingFeature(url.includes('favorite') ? '收藏' : '账户设置');
-        return;
+        this.showDevelopingFeature(url.includes('favorite') ? '收藏' : '账户设置')
+        return
       }
-      
-      // 其他页面正常跳转
+
       uni.navigateTo({
         url: url,
         fail: (err) => {
-          console.error('页面跳转失败:', err);
-          this.showDevelopingFeature('该功能');
+          console.error('页面跳转失败:', err)
+          this.showDevelopingFeature('该功能')
         }
-      });
+      })
     },
-    
+
     // 显示功能开发中的提示
     showDevelopingFeature(featureName) {
       uni.showToast({
         title: `${featureName}功能开发中，敬请期待`,
         icon: 'none',
         duration: 2000
-      });
+      })
     },
-    
-    // 显示模态框
-    showModal(title) {
-      uni.showModal({
-        title: title,
-        content: `这是${title}内容，实际项目中应该跳转到对应页面或者展示完整内容。`,
-        showCancel: false
-      });
-    },
-    
+
     // 退出登录
     logout() {
       uni.showModal({
@@ -288,40 +304,39 @@ export default {
         content: '确定要退出登录吗？',
         success: (res) => {
           if (res.confirm) {
-            // 调用store的登出action
-            this.$store.dispatch('logout').then(() => {
-              // 清除本地存储的token
-              uni.removeStorageSync('token');
+            try {
+              // 清除本地存储
+              uni.removeStorageSync('token')
+              uni.removeStorageSync('userInfo')
               
-              // 更新本地用户状态
+              // 重置用户信息
               this.userInfo = {
                 isLoggedIn: false,
                 nickname: '',
                 userId: '',
-                avatar: '/static/images/avatar-default.svg'
-              };
-              
-              // 退出后重定向到登录页
+                avatar: '/static/images/avatar-default.svg',
+                phone: ''
+              }
+
               uni.showToast({
                 title: '已退出登录',
                 icon: 'success',
                 success: () => {
-                  // 延迟跳转，让提示消息显示完
                   setTimeout(() => {
-                    this.redirectToLogin();
-                  }, 1500);
+                    this.redirectToLogin()
+                  }, 1500)
                 }
-              });
-            }).catch(err => {
-              console.error('登出失败:', err);
+              })
+            } catch (e) {
+              console.error('退出登录失败:', e)
               uni.showToast({
                 title: '退出登录失败',
                 icon: 'none'
-              });
-            });
+              })
+            }
           }
         }
-      });
+      })
     }
   }
 }

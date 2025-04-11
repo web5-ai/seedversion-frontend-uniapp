@@ -20,7 +20,8 @@
         <text class="view-full" @click="viewFullImage">点击查看原图</text>
       </view>
       <view class="sample-image-container">
-        <image :src="analysisResult.image" mode="aspectFill" class="sample-image" />
+        <!-- 修改为新的图片路径 -->
+        <image :src="result.data.data.image" mode="aspectFit" class="sample-image" />
       </view>
     </view>
 
@@ -37,47 +38,42 @@
       <view class="info-content">
         <view class="info-item">
           <text class="info-label">地点：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.location }}</view>
-          <input v-if="isEditing" v-model="saveData.location" class="info-input" />
+          <view v-if="!isEditing" class="info-value">{{ result.data.data.address || '--' }}</view>
+          <input v-if="isEditing" v-model="result.data.data.address" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">品种：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.variety }}</view>
-          <input v-if="isEditing" v-model="saveData.variety" class="info-input" />
+          <view v-if="!isEditing" class="info-value">{{ result.data.data.type || '--' }}</view>
+          <input v-if="isEditing" v-model="result.data.data.type" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">批次：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.batchNumber }}</view>
-          <input v-if="isEditing" v-model="saveData.batchNumber" class="info-input" />
-        </view>
-        <view class="info-item">
-          <text class="info-label">采集日期：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.collectionDate }}</view>
-          <input v-if="isEditing" v-model="saveData.collectionDate" class="info-input" />
+          <view v-if="!isEditing" class="info-value">{{ result.data.data.batch_no }}</view>
+          <input v-if="isEditing" v-model="result.data.data.batch_no" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">种植方式：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.plantingMethod || '--' }}</view>
-          <input v-if="isEditing" v-model="saveData.plantingMethod" class="info-input" />
+          <view v-if="!isEditing" class="info-value">{{ result.data.data.planting_way || '--' }}</view>
+          <input v-if="isEditing" v-model="result.data.data.planting_way" class="info-input" />
         </view>
         <view class="info-item">
           <text class="info-label">收割方式：</text>
-          <view v-if="!isEditing" class="info-value">{{ saveData.harvestMethod || '--' }}</view>
-          <input v-if="isEditing" v-model="saveData.harvestMethod" class="info-input" />
+          <view v-if="!isEditing" class="info-value">{{ result.data.data.harvest_way || '--' }}</view>
+          <input v-if="isEditing" v-model="result.data.data.harvest_way" class="info-input" />
         </view>
       </view>
     </view>
 
-    <!-- 模型选择区域 -->
+    <!-- 模型信息区域 -->
     <view class="model-section">
-      <view class="model-picker-container">
-        <text class="section-title">模型选择</text>
-        <picker :range="models" @change="onModelChange">
-          <view class="picker">
-            <text>{{ selectedModel }}</text>
-            <text class="arrow-down">▼</text>
-          </view>
-        </picker>
+      <view class="section-header">
+        <text class="section-title">使用模型</text>
+      </view>
+      <view class="info-content">
+        <view class="info-item">
+          <text class="info-label">模型：</text>
+          <view class="info-value">{{ result.data.data.mod }}</view>
+        </view>
       </view>
     </view>
 
@@ -91,8 +87,9 @@
         <view v-for="(field, index) in ['oil', 'protein']" :key="index" class="chart-item">
           <view class="chart-label">{{ field === 'oil' ? '油脂' : '蛋白质' }}</view>
           <view class="chart-bar-container">
-            <view class="chart-bar" :style="{ width: analysisResult.res[field] + '%' }">
-              <text class="chart-value">{{ analysisResult.res[field] }}</text>
+            <!-- 修改为新的含量数据 -->
+            <view class="chart-bar" :style="{ width: result.data.data.res[field] + '%' }">
+              <text class="chart-value">{{ result.data.data.res[field] }}</text>
             </view>
           </view>
         </view>
@@ -110,23 +107,9 @@
 export default {
   data() {
     return {
-      // 修改为新的模型列表
-      models: ['MPViT', 'ResNet', 'FasterNet', 'EfficientNet', 'Swin', 'VanillaNet'],
-      // 模型选择
-      selectedModel: 'FasterNet', // 默认选择 ResNet
       // 样本数据
-      saveData: {
-        id: 'S20230325001',
-        imagePath: '/static/images/canola.jpg',
-        location: '湖北荆州',
-        variety: '双低油菜',
-        batchNumber: 'B20231225-001',
-        collectionDate: '2023-3-25',
-        plantingMethod: '',
-        harvestMethod: ''
-      },
+      result: {},
       isLoading: true,
-      analysisResult: null,
       isEditing: false, // 编辑状态标识
       originalSampleData: {} // 保存原始数据，用于取消编辑时恢复
     };
@@ -135,9 +118,28 @@ export default {
     // 从页面参数获取记录ID
     if (options.recordId) {
       // TODO: 实现从服务器获取检测记录详情
-      // 在实际项目中，这里应该调用API获取检测结果
-      // 这里使用随机数据模拟
-      this.simulateLoadingResult();
+      
+      // 发送请求/api/seed/detail
+      uni.request({
+        header: {
+          Authorization: uni.getStorageSync('token'),
+          Server: true
+        },
+        url: 'api/seed/detail',
+        method: 'POST',
+        data: {
+          id: options.recordId // 假设ID是从页面参数中获取的
+        },
+        success: (res) => {
+          this.result = res; // 更新 result 数据
+          // for (let key in this.result.data.data) {
+          //  console.log(key); 
+          // }
+        }
+      })
+    }
+    else {
+     console.error('未提供记录ID'); 
     }
   },
   methods: {
@@ -163,15 +165,15 @@ export default {
     // 查看原图
     viewFullImage() {
       uni.previewImage({
-        urls: [this.saveData.imagePath],
-        current: this.saveData.imagePath
+        urls: [this.result.data.data.image],
+        current: this.result.data.data.image
       });
     },
 
     // 开始编辑
     startEditing() {
       this.isEditing = true;
-      this.originalSampleData = { ...this.saveData }; // 保存原始数据
+      this.originalSampleData = { ...this.result.data.data }; // 保存原始数据
     },
 
     // 保存信息
@@ -180,22 +182,22 @@ export default {
         url: 'api/seed/save',
         method: 'POST',
         data: {
-          id: this.analysisResult.id, // 假设ID是从结果中获取的
-          type: this.saveData.variety, // 假设类型是从结果中获取的
-          address: this.saveData.location, // 假设地址是从结果中获取的
-          planting_way: this.saveData.plantingMethod, // 假设种植方式是从结果中获取的
-          harvest_way: this.saveData.harvestMethod, // 假设收割方式是从结果中获取的
+          id: this.result.data.data.id, // 假设ID是从结果中获取的
+          type: this.result.data.data.type, // 假设类型是从结果中获取的
+          address: this.result.data.data.address, // 假设地址是从结果中获取的
+          planting_way: this.result.data.data.planting_way, // 假设种植方式是从结果中获取的
+          harvest_way: this.result.data.data.harvest_way, // 假设收割方式是从结果中获取的
         },
         header: {
-          Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U', 
+          Authorization: uni.getStorageSync('token'),
           Server: true
         },
         success: (res) => {
-            uni.showToast({
-              title: '保存成功',
-              icon: 'success'
-            });
-            this.isEditing = false;
+          uni.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+          this.isEditing = false;
         },
         fail: (err) => {
           uni.showToast({
@@ -208,37 +210,17 @@ export default {
 
     // 取消编辑
     cancelEditing() {
-      this.saveData = { ...this.originalSampleData }; // 恢复原始数据
+      this.result.data.data = { ...this.originalSampleData }; // 恢复原始数据
       this.isEditing = false;
-    },
-
-    onModelChange(e) {
-      this.selectedModel = this.models[e.detail.value];
-      // 调用原来的选择模型逻辑
-      this.selectModel();
-    },
-    // 选择模型
-    selectModel() {
-      // 显示加载中
-      uni.showLoading({
-        title: '重新分析中...'
-      });
-      setTimeout(() => {
-        uni.hideLoading(); 
-      }, 500);
-
     },
 
     // 跳转到反馈页面
     saveReport() {
       // 跳转到反馈页面，传入记录ID
+      uni.setStorageSync('feedbackData', this.result.data.data);
       uni.navigateTo({
-        url: `/pages/feedback/index?recordId=${this.saveData.id}`
+        url: `/pages/feedback/index?recordId=${this.result.data.data.id}`
       });
-    },
-    simulateLoadingResult() {
-      // 如果有缓存的分析结果，直接加载
-      this.analysisResult = uni.getStorageSync('current_analysis_result');
     }
   }
 }
@@ -339,30 +321,6 @@ export default {
   object-fit: cover;
 }
 
-.model-picker-container {
-  display: flex;
-  padding: 25px;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-}
-
-.picker {
-  padding: 10px;
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #f0f0f0; /* 添加边框以便区分 */
-  border-radius: 5px; /* 圆角边框 */
-  width: 100px; /* 设置宽度 */
-}
-
-.arrow-down {
-  font-size: 12px;
-  color: #999;
-}
-
 /* 信息区域 */
 .info-section {
   background: white;
@@ -428,53 +386,14 @@ export default {
   flex: 1;
   border: 1px solid #f0f0f0;
   border-radius: 3px;
-  padding: 5px;
-  font-size: 14px;
+  padding: 0px; /* 增大内边距，使输入框内容有更多空间 */
+  font-size: 20px; /* 增大字体大小 */
 }
 
-/* 模型选择区域 */
+/* 模型信息区域 */
 .model-section {
   background: white;
   margin-bottom: 10px;
-}
-
-.model-options {
-  display: flex;
-  padding: 15px;
-}
-
-.model-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.model-radio {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  margin-right: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.model-option.active .model-radio {
-  border-color: #4CAF50;
-}
-
-.radio-inner {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #4CAF50;
-}
-
-.model-name {
-  font-size: 14px;
-  color: #333;
 }
 
 /* 结果图表区域 */
