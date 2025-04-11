@@ -19,11 +19,13 @@
           <view class="record-data">
             <view class="data-item">
               <text class="data-label">油脂：</text>
-              <text class="data-value oil-value">{{ item.res.oil }}</text>
+              <!-- 传两位小数 -->
+
+              <text class="data-value oil-value">{{ item.res.oil.toFixed(2) }}</text>
             </view>
             <view class="data-item">
               <text class="data-label">蛋白质：</text>
-              <text class="data-value linoleic-value">{{ item.res.protein }}</text>
+              <text class="data-value linoleic-value">{{ item.res.protein.toFixed(2) }}</text>
             </view>
           </view>
         </view>

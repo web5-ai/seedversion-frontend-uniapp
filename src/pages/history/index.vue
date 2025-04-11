@@ -49,7 +49,7 @@ export default {
         method: 'POST',
         data: {
           page: this.currentPage,
-          limit: 10,
+          limit: 5,
         }, 
         header: {
           Authorization: uni.getStorageSync('token'),

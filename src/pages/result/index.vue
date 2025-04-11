@@ -132,6 +132,9 @@ export default {
         },
         success: (res) => {
           this.result = res; // 更新 result 数据
+          // oil protein数据取两位小数
+          this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
+          this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
           // for (let key in this.result.data.data) {
           //  console.log(key); 
           // }
