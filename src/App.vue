@@ -1,21 +1,65 @@
 <template>
   <view>
-    <!-- 页面内容会自动加载 -->
+
   </view>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      isNavigating: false // 用于防止重复导航
+    }
+  },
+
   onLaunch: function() {
-    // App 启动时执行，只执行一次
-    // 初始化用户状态、检查更新、设置主题等
+    // App 启动时执行一次登录检查
+    this.checkLogin();
   },
-  onShow: function() {
-    // App 从后台进入前台显示时触发
-  },
-  onHide: function() {
-    // App 从前台进入后台时触发
-  },
+
+  methods: {
+    checkLogin() {
+      try {
+        // 如果正在导航中，直接返回
+        if (this.isNavigating) {
+          return;
+        }
+
+        const token = uni.getStorageSync('token');
+        const pages = getCurrentPages();
+        const currentPage = pages[0]?.route || '';
+        
+        // 如果没有token且不在登录页，跳转到登录页
+        if (!token && currentPage !== 'pages/login/index') {
+          this.isNavigating = true;
+          
+          uni.reLaunch({
+            url: '/pages/login/index',
+            complete: () => {
+              // 导航完成后重置状态
+              setTimeout(() => {
+                this.isNavigating = false;
+              }, 1000);
+            }
+          });
+        }
+      } catch (e) {
+        console.error('检查登录状态失败:', e);
+        if (!this.isNavigating) {
+          this.isNavigating = true;
+          
+          uni.reLaunch({
+            url: '/pages/login/index',
+            complete: () => {
+              setTimeout(() => {
+                this.isNavigating = false;
+              }, 1000);
+            }
+          });
+        }
+      }
+    }
+  }
 }
 </script>
 

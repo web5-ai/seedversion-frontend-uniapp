@@ -95,7 +95,7 @@ export default {
       try {
         const token = uni.getStorageSync('token')
         const res = await uni.request({
-          url: 'api/feedback/index',
+          url: 'http://youcaihua-api.harmony-dev.com/api/feedback/index',
           method: 'POST',
           header: {
             Authorization: token,

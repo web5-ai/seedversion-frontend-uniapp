@@ -1,5 +1,6 @@
 <template>
   <view class="page-container">
+
     <!-- 顶部标题栏 -->
     <view class="header">
       <text class="header-title">油菜籽成分检测系统</text>
@@ -27,12 +28,7 @@
           @item-click="viewDetail"
           empty-text="暂无检测记录"
         />
-        
-        <!-- 使用提示 -->
-        <view class="tips-section">
-          <text class="tip-text">使用提示：请确保光线充足</text>
-          <text class="tip-text">图片完整清晰</text>
-        </view>
+
       </view>
     </view>
   </view>
@@ -50,16 +46,39 @@ export default {
   data() {
     return {
       recentRecords: [],
-      // 当前选择图片的来源（camera-相机拍照，album-相册选择）
-      currentSource: 'camera'
+      permissions: [
+        'android.permission.CAMERA',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+        'android.permission.READ_EXTERNAL_STORAGE'
+      ]
     }
   },
   onLoad() {
-    // 页面加载时的逻辑
-    this.checkPermissions();
-    
-    // 监听添加检测记录事件
-    uni.$on('addDetectionRecord', this.addDetectionRecord);
+    this.requestPermissions();
+    uni.request({
+      url: 'http://youcaihua-api.harmony-dev.com/api/seed/index',
+      method: 'POST',
+      data: {
+        page: 1,
+        limit: 5,
+      }, 
+      header: {
+        Authorization: uni.getStorageSync('token'),
+        Server: true
+      },
+      success: (res) => {
+        if (res.data.code !== 1) {
+          uni.showToast({
+            title: res.data.msg || '请求失败',
+            icon: 'none'
+          }); 
+        }
+       this.recentRecords = res.data.data.data;
+      },
+      fail: (err) => {
+        console.error('请求失败', err); 
+      }
+    })
   },
   onUnload() {
     // 页面卸载时移除事件监听
@@ -77,112 +96,78 @@ export default {
       }
     },
     
-    // 检查相机和存储权限
-    checkPermissions() {
-      // #ifdef APP-PLUS || MP
-      uni.authorize({
-        scope: 'scope.camera',
-        success: () => {
-          console.log('相机权限已获取');
+    // 请求权限
+    requestPermissions() {
+      plus.android.requestPermissions(
+        this.permissions,
+        (resultObj) => {
+          let allGranted = true;
+          for (var i = 0; i < resultObj.deniedPresent.length; i++) {
+            console.log('拒绝本次申请权限：' + resultObj.deniedPresent[i]);
+            allGranted = false;
+          }
+          for (var i = 0; i < resultObj.deniedAlways.length; i++) {
+            console.log('永久拒绝权限：' + resultObj.deniedAlways[i]);
+            allGranted = false;
+          }
+          
+          if (!allGranted) {
+            uni.showModal({
+              title: '提示',
+              content: '需要相机和存储权限才能正常使用拍照功能',
+              confirmText: '去设置',
+              success: (res) => {
+                if (res.confirm) {
+                  this.gotoAppPermissionSetting();
+                }
+              }
+            });
+          }
         },
-        fail: () => {
-          uni.showToast({
-            title: '请允许使用相机权限',
-            icon: 'none'
-          });
+        (error) => {
+          console.error('权限请求失败', error);
         }
-      });
-      // #endif
+      );
+    },
+
+    // 跳转到应用权限设置页面
+    gotoAppPermissionSetting() {
+      const main = plus.android.runtimeMainActivity();
+      const Intent = plus.android.importClass('android.content.Intent');
+      const Settings = plus.android.importClass('android.provider.Settings');
+      const Uri = plus.android.importClass('android.net.Uri');
+      
+      const intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+      const uri = Uri.fromParts('package', main.getPackageName(), null);
+      intent.setData(uri);
+      main.startActivity(intent);
     },
     
-    // 处理上传照片
+    // 处理拍照/选择图片
     handleUpload() {
       uni.showActionSheet({
         itemList: ['拍照', '从相册选择'],
-        success: res => {
-          if (res.tapIndex === 0) {
-            // 拍照
-            this.takePhoto();
-          } else if (res.tapIndex === 1) {
-            // 从相册选择
-            this.chooseFromAlbum();
-          }
+        success: (res) => {
+          const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
+          uni.chooseImage({
+            count: 1,
+            sourceType,
+            success: (res) => {
+              const tempFilePath = res.tempFilePaths[0];
+              // 跳转到预览页面
+              uni.navigateTo({
+                url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(tempFilePath)}`
+              });
+            },
+            fail: (err) => {
+              uni.showToast({
+                title: sourceType[0] === 'camera' ? '拍照失败' : '选择图片失败',
+                icon: 'none'
+              });
+            }
+          });
         }
       });
-    },
-    
-    // 拍照
-    takePhoto() {
-      // 记录来源
-      this.currentSource = 'camera';
-      
-      uni.chooseImage({
-        count: 1,
-        sourceType: ['camera'],
-        success: res => {
-          const tempFilePath = res.tempFilePaths[0];
-          this.uploadImage(tempFilePath);
-        }
-      });
-    },
-    
-    // 从相册选择
-    chooseFromAlbum() {
-      // 记录来源
-      this.currentSource = 'album';
-      
-      uni.chooseImage({
-        count: 1,
-        sourceType: ['album'],
-        success: res => {
-          const tempFilePath = res.tempFilePaths[0];
-          this.uploadImage(tempFilePath);
-        }
-      });
-    },
-    
-    // 上传图片
-    uploadImage(filePath) {
-      // 跳转到照片预览页面
-      uni.navigateTo({
-        url: `/pages/photo-preview/index?imagePath=${encodeURIComponent(filePath)}&source=${this.currentSource}`
-      });
-      
-      // 以下代码注释掉，交由照片预览页面处理
-      /*
-      uni.showLoading({
-        title: '正在分析...'
-      });
-      
-      // TODO: 实际项目中这里应该调用上传API
-      setTimeout(() => {
-        uni.hideLoading();
-        
-        // 模拟检测结果
-        const result = {
-          id: Date.now().toString(),
-          date: new Date().toISOString().split('T')[0],
-          image: filePath,
-          oil: '42.8%',
-          protein: '23.5%',
-          quality: '优'
-        };
-        
-        // 添加到检测结果列表
-        this.recentRecords.unshift(result);
-        
-        // 限制列表长度
-        if (this.recentRecords.length > 5) {
-          this.recentRecords.pop();
-        }
-        
-        // 提示检测完成
-        uni.showToast({
-          title: '检测完成',
-          icon: 'success'
-        });
-      }, 2000);
-      */
     },
     
     // 查看详情

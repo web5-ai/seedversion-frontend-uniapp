@@ -159,7 +159,7 @@ export default {
       const userInfo = {};
       // /api/user/info
       uni.request({
-        url: 'api/user/info', // 替换为你的API地址
+        url: 'http://youcaihua-api.harmony-dev.com/api/user/info', // 替换为你的API地址
         method: 'POST',
         header: {
           Authorization: res.data.data.token, // 使用登录接口返回的token
@@ -186,6 +186,7 @@ export default {
          userInfo.address = res.data.data.address; // 假设服务器返回地址
          userInfo.email = res.data.data.email; // 假设服务器返回邮箱
          uni.setStorageSync('userInfo', userInfo);
+         console.log('用户信息存储成功:', userInfo);
         },
 
       })
@@ -243,47 +244,82 @@ export default {
       // 设置提交状态
       this.isSubmitting = true;
       
-      // 调用登录api api/user/loginByPhone
+      // 设置登录超时定时器
+      const timeoutTimer = setTimeout(() => {
+        if (this.isSubmitting) {
+          this.isSubmitting = false;
+          uni.showModal({
+            title: '登录超时',
+            content: '网络请求超时，请检查网络后重试',
+            showCancel: false,
+            success: () => {
+              // 用户点击确定后的回调
+              console.log('用户确认了超时提示');
+            }
+          });
+        }
+      }, 5000); // 5秒超时
+      console.log('开始登录')
+      // 调用登录api
       uni.request({
-        url: 'api/user/loginByPhone', // 替换为你的API地址
+        url: 'http://youcaihua-api.harmony-dev.com/api/user/loginByPhone',
         method: 'POST',
         data: {
           phone: this.phone,
           code: this.verifyCode
         },
-
         header: {
-          // Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDM1NTcwMTQsInVpZCI6MX0.z3eLia-Kr_7LxV_y1ZzAmFZ1EBbnKmoPiWNDYTSWL_U',
           Server: true
         },
-
         success: (res) => {
-          if (res.data.code === 1){
+          // 清除超时定时器
+          clearTimeout(timeoutTimer);
+          
+          if (res.data.code === 1) {
             this.login_success(res);
             uni.showToast({
               title: res.data.msg,
               icon: '登录成功' 
-            })
-          }
-          else {
+            });
+          } else {
             uni.showToast({
               title: res.data.msg,
               icon: 'none'
             }); 
           }
         },
-      })
-
-
+        fail: (err) => {
+          // 清除超时定时器
+          clearTimeout(timeoutTimer);
+          console.error('登录请求失败:', err);
+          uni.showToast({
+            title: '登录失败，请稍后重试',
+            icon: 'none'
+          });
+        },
+        complete: () => {
+          // 如果不是因为超时导致的状态重置，则重置提交状态
+          if (this.isSubmitting) {
+            this.isSubmitting = false;
+          }
+        }
+      });
     },
     viewTerms(type) {
       // 查看协议
       const title = type === 'user' ? '用户协议' : '隐私政策';
-      uni.showModal({
-        title: title,
-        content: `这是${title}内容，实际项目中应该跳转到协议页面或者展示完整协议内容。`,
-        showCancel: false
-      });
+      if (type === 'user') {
+        console.log('查看用户协议');
+        uni.navigateTo({
+         url: '/pages/terms/user' 
+        })
+      }
+      else if (type === 'privacy') {
+        console.log('查看隐私政策');
+        uni.navigateTo({
+         url: '/pages/terms/privacy'
+        })
+      }
     }
   },
   onUnload() {

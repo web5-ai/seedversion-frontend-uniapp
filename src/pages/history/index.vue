@@ -34,51 +34,87 @@ export default {
   },
   data() {
     return {
-      // 模拟的历史记录
-      historyRecords: {},
-      currentPage: 1 // 当前页码
+      historyRecords: {
+        data: [], // 当前页的数据
+        has_more: false,
+        total: 0
+      },
+      currentPage: 1,
+      pageSize: 10, // 每页显示的记录数
+      isLoading: false
     }
   },
   onLoad() {
-    this.fetchHistoryRecords();
+    this.fetchHistoryRecords()
+  },
+  onShow() {
+    this.currentPage = 1
+    this.fetchHistoryRecords()
   },
   methods: {
-    fetchHistoryRecords() {
-      uni.request({
-        url: 'api/seed/index',
-        method: 'POST',
-        data: {
-          page: this.currentPage,
-          limit: 5,
-        }, 
-        header: {
-          Authorization: uni.getStorageSync('token'),
-          Server: true // 服务器端接收的字段名
-        },
-        success: (res) => {
-          this.historyRecords = res.data.data;
+    async fetchHistoryRecords() {
+      if (this.isLoading) return
+      
+      this.isLoading = true
+      uni.showLoading({
+        title: '加载中...'
+      })
+
+      try {
+        const res = await uni.request({
+          url: 'http://youcaihua-api.harmony-dev.com/api/seed/index',
+          method: 'POST',
+          data: {
+            page: this.currentPage,
+            limit: this.pageSize,
+          }, 
+          header: {
+            Authorization: uni.getStorageSync('token'),
+            Server: true
+          }
+        })
+
+        if (res.data && res.data.code === 1) {
+          // 直接替换当前页的数据
+          this.historyRecords = res.data.data
+        } else {
+          throw new Error(res.data?.msg || '加载失败')
         }
-      });
+      } catch (error) {
+        console.error('获取历史记录失败:', error)
+        uni.showToast({
+          title: '加载失败，请重试',
+          icon: 'none'
+        })
+      } finally {
+        uni.hideLoading()
+        this.isLoading = false
+      }
     },
     prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-        this.fetchHistoryRecords();
+      if (this.currentPage > 1 && !this.isLoading) {
+        this.currentPage--
+        this.fetchHistoryRecords()
       }
     },
     nextPage() {
-      if (this.historyRecords.has_more) {
-        this.currentPage++;
-        this.fetchHistoryRecords();
+      if (this.historyRecords.has_more && !this.isLoading) {
+        this.currentPage++
+        this.fetchHistoryRecords()
       }
     },
-    // 查看详情
     viewDetail(record) {
-      // TODO: 跳转到详情页
-      uni.setStorageSync('current_analysis_result', record);
+      if (!record?.id) {
+        uni.showToast({
+          title: '记录信息不完整',
+          icon: 'none'
+        })
+        return
+      }
+
       uni.navigateTo({
         url: `/pages/result/index?recordId=${record.id}`
-      });
+      })
     }
   }
 }

@@ -2,9 +2,8 @@
     "name" : "油菜籽成分检测系统",
     "appid" : "__UNI__AAD89FD",
     "description" : "油菜籽成分检测系统",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
-    "transformPx" : false,
+    "versionName" : "1.0.2",
+    "versionCode" : 102,
     "app-plus" : {
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",
@@ -15,7 +14,9 @@
             "autoclose" : true,
             "delay" : 0
         },
-        "modules" : {},
+        "modules" : {
+            "Camera" : {}
+        },
         "distribute" : {
             "android" : {
                 "permissions" : [
@@ -38,7 +39,65 @@
             "ios" : {
                 "dSYMs" : false
             },
-            "sdkConfigs" : {}
+            "sdkConfigs" : {},
+            "icons" : {
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                },
+                "android" : {
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png"
+                }
+            }
+        },
+        "tabBar" : {
+            "height" : "50px",
+            "backgroundColor" : "#FFFFFF",
+            "selectedColor" : "#4CAF50",
+            "color" : "#999999",
+            "list" : [
+                {
+                    "pagePath" : "pages/history/index",
+                    "text" : "历史记录",
+                    "iconPath" : "static/tabbar/history.png",
+                    "selectedIconPath" : "static/tabbar/history-active.png"
+                },
+                {
+                    "pagePath" : "pages/index/index",
+                    "text" : "检测",
+                    "iconPath" : "static/tabbar/detect.png",
+                    "selectedIconPath" : "static/tabbar/detect-active.png"
+                },
+                {
+                    "pagePath" : "pages/my/index",
+                    "text" : "我的",
+                    "iconPath" : "static/tabbar/user.png",
+                    "selectedIconPath" : "static/tabbar/user-active.png"
+                }
+            ]
         }
     },
     "quickapp" : {},

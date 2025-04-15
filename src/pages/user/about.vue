@@ -21,8 +21,8 @@
       <!-- 开发团队 -->
       <view class="info-section">
         <view class="info-title">开发团队</view>
-        <view class="info-content">技术支持: XX科技有限公司</view>
-        <view class="info-content">联系邮箱: support@example.com</view>
+        <view class="info-content">技术支持: 油料脂质分析实验室</view>
+        <view class="info-content">联系邮箱: lipidscience@163.com</view>
       </view>
       
       <!-- 底部导航链接 -->
