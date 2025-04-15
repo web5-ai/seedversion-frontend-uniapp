@@ -125,11 +125,11 @@
       },
       {
         "pagePath": "pages/index/index",
-        "text": "  📷\n检测"
+        "text": "  📷\n检 测"
       },
       {
         "pagePath": "pages/my/index",
-        "text": "  👤\n我的"
+        "text": "  👤\n我 的"
       }
     ]
   }

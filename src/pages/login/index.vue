@@ -3,7 +3,9 @@
     <view class="login-page">
       <!-- Logo和标题区域 -->
       <view class="logo-area">
-        <view class="logo"></view>
+        <view class="logo">
+          <image src="/static/images/logo.png" mode="aspectFit" class="logo-image"></image>
+        </view>
         <text class="app-title">油菜籽成分检测App</text>
       </view>
       
@@ -369,6 +371,12 @@ export default {
   background-color: #CCCCCC;
   border-radius: 20px;
   margin-bottom: 16px;
+}
+
+.logo image {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px; 
 }
 
 .app-title {

@@ -55,6 +55,8 @@ export default {
   },
   onLoad() {
     this.requestPermissions();
+  },
+  onShow() {
     uni.request({
       url: 'http://youcaihua-api.harmony-dev.com/api/seed/index',
       method: 'POST',

@@ -2,8 +2,8 @@
     "name" : "油菜籽成分检测系统",
     "appid" : "__UNI__AAD89FD",
     "description" : "油菜籽成分检测系统",
-    "versionName" : "1.0.2",
-    "versionCode" : 102,
+    "versionName" : "1.0.3",
+    "versionCode" : 103,
     "app-plus" : {
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",

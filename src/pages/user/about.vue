@@ -6,7 +6,7 @@
       <!-- 应用 Logo 部分 -->
       <view class="logo-section">
         <view class="logo-box">
-          <image src="/static/logo.png" mode="aspectFit" class="logo-image"></image>
+          <image src="/static/images/logo.png" mode="aspectFill" class="logo-image"></image>
         </view>
         <view class="app-title">油菜籽成分检测系统</view>
         <view class="app-version">版本: 1.0.0</view>
@@ -122,8 +122,8 @@ export default {
 }
 
 .logo-image {
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  height: 100%;
 }
 
 .app-title {
