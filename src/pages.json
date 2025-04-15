@@ -121,21 +121,15 @@
     "list": [
       {
         "pagePath": "pages/history/index",
-        "text": "历史记录",
-        "iconPath": "static/icons/history.svg",
-        "selectedIconPath": "static/icons/history-active.svg"
+        "text": "      🕐\n历史记录"
       },
       {
         "pagePath": "pages/index/index",
-        "text": "检测",
-        "iconPath": "static/icons/detect.svg",
-        "selectedIconPath": "static/icons/detect-active.svg"
+        "text": "  📷\n检测"
       },
       {
         "pagePath": "pages/my/index",
-        "text": "我的",
-        "iconPath": "static/icons/user.svg",
-        "selectedIconPath": "static/icons/user-active.svg"
+        "text": "  👤\n我的"
       }
     ]
   }

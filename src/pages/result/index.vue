@@ -48,8 +48,7 @@
         </view>
         <view class="info-item">
           <text class="info-label">批次：</text>
-          <view v-if="!isEditing" class="info-value">{{ result.data.data.batch_no }}</view>
-          <input v-if="isEditing" v-model="result.data.data.batch_no" class="info-input" />
+          <view  class="info-value">{{ result.data.data.batch_no }}</view>
         </view>
         <view class="info-item">
           <text class="info-label">种植方式：</text>
@@ -89,7 +88,7 @@
           <view class="chart-bar-container">
             <!-- 修改为新的含量数据 -->
             <view class="chart-bar" :style="{ width: result.data.data.res[field] + '%' }">
-              <text class="chart-value">{{ result.data.data.res[field] }}</text>
+              <text class="chart-value">{{ result.data.data.res[field] + '%' }}</text>
             </view>
           </view>
         </view>
@@ -125,7 +124,7 @@ export default {
           Authorization: uni.getStorageSync('token'),
           Server: true
         },
-        url: 'api/seed/detail',
+        url: 'http://youcaihua-api.harmony-dev.com/api/seed/detail',
         method: 'POST',
         data: {
           id: options.recordId // 假设ID是从页面参数中获取的
@@ -182,7 +181,7 @@ export default {
     // 保存信息
     saveInfo() {
       uni.request({
-        url: 'api/seed/save',
+        url: 'http://youcaihua-api.harmony-dev.com/api/seed/save',
         method: 'POST',
         data: {
           id: this.result.data.data.id, // 假设ID是从结果中获取的
@@ -239,10 +238,11 @@ export default {
 
 /* 顶部导航栏 */
 .navigation-bar {
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 44px;
+  height: 70px;
   background-color: #4CAF50;
   color: white;
   padding: 0 15px;

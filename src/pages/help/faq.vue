@@ -1,13 +1,11 @@
 <template>
+  <!-- 标题 -->
+  <view class="header">
+    <!-- 返回键 -->
+    <image src="/static/icons/back.svg" class="back-icon" mode="aspectFill" alt="返回图标" @click="goBack"></image>
+    <text class="header-title">常见问题</text>
+  </view>
   <view class="page-container">
-    <!-- 顶部标题栏 -->
-    <view class="header">
-      <view class="back-btn" @click="goBack">
-        <text class="back-icon">&lt;</text>
-      </view>
-      <text class="header-title">常见问题</text>
-    </view>
-    
     <!-- 内容区域 -->
     <view class="content">
       <!-- 问题搜索框 -->
@@ -242,6 +240,8 @@ export default {
   font-size: 18px;
   font-weight: 500;
   text-align: center;
+  /* 确保标题不被返回按钮挤压 */
+  margin: 0 auto; 
 }
 
 .back-btn {
@@ -254,10 +254,13 @@ export default {
   height: 30px;
 }
 
+/* 修改返回图标大小 */
 .back-icon {
   color: #fff;
   font-size: 24px;
   font-weight: bold;
+  width: 30px; /* 调整宽度 */
+  height: 30px; /* 调整高度 */
 }
 
 /* 内容区域 */

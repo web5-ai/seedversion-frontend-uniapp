@@ -38,25 +38,6 @@
         <view class="word-count">{{ feedbackContent.length }}/500</view>
       </view>
 
-      <!-- 应用评分 -->
-      <view class="form-section">
-        <view class="section-title">应用评分</view>
-        <view class="rating-container">
-          <view 
-            v-for="star in 5" 
-            :key="star"
-            class="star"
-            :class="{ active: star <= rating }"
-            @click="rating = star"
-          >
-            <image 
-              :src="star <= rating ? '/static/icons/star-filled.svg' : '/static/icons/star-outline.svg'"
-              class="star-icon"
-            ></image>
-          </view>
-        </view>
-      </view>
-
       <!-- 联系方式 -->
       <view class="form-section">
         <view class="section-title">联系方式（选填）</view>

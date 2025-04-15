@@ -125,7 +125,7 @@ export default {
       // 记录ID
       recordId: null,
       // 可选模型列表
-      models: ['MPViT', 'ResNet', 'FasterNet', 'EfficientNet', 'Swin', 'VanillaNet'],
+      models: ['FasterNet', 'MPViT', 'ResNet', 'EfficientNet', 'Swin', 'VanillaNet'],
       // 当前选中的模型
       selectedModel: 'FasterNet'
     }
@@ -177,7 +177,7 @@ export default {
       this.analyzing = true;  
       // 嵌套请求，先上传文件，成功后再进行分析，避免顺序错误
       uni.uploadFile({
-        url: 'api/ajax/upload', // 替换为你的API地址
+        url: 'http://youcaihua-api.harmony-dev.com/api/ajax/upload', // 替换为你的API地址
         filePath: this.imagePath, // 图片路径
         name: 'file', // 服务器端接收的字段名
         header: {
@@ -195,7 +195,7 @@ export default {
           console.log('从json中获取图片链接: ', this.imageUrl); // 打印服务器返回的数据
           // api/seed/predict
           uni.request({
-            url: 'api/seed/predict', // 替换为你的API地址
+            url: 'http://youcaihua-api.harmony-dev.com/api/seed/predict', // 替换为你的API地址
             method: 'POST', // 使用POST方法
             data: {
               'image': this.imageUrl,

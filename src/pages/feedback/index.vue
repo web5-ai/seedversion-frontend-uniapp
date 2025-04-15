@@ -128,7 +128,6 @@ export default {
     return {
       feedbackData: {}, // 从上一页传来的数据
       feedbackOptions: [
-        { label: '结果准确', value: 'accurate' },
         { label: '结果不准确', value: 'inaccurate' },
         { label: '功能建议', value: 'feature' },
         { label: '界面体验', value: 'ui' },
@@ -155,7 +154,7 @@ export default {
       console.log('Feedback data:', this.feedbackData);
       // /api/feedback/detail
       uni.request({
-        url: 'api/feedback/detail',
+        url: 'http://youcaihua-api.harmony-dev.com/api/feedback/detail',
         method: 'POST',
         data: { id: options.recordId }, 
         header: {
@@ -204,7 +203,7 @@ export default {
         };
 
         const res = await uni.request({
-          url: '/api/feedback/add',
+          url: 'http://youcaihua-api.harmony-dev.com/api/feedback/add',
           method: 'POST',
           data: feedbackData,
           header: {

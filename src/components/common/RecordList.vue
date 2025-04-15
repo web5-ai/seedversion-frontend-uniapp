@@ -19,13 +19,11 @@
           <view class="record-data">
             <view class="data-item">
               <text class="data-label">油脂：</text>
-              <!-- 传两位小数 -->
-
-              <text class="data-value oil-value">{{ item.res.oil.toFixed(2) }}</text>
+              <text class="data-value oil-value">{{ formatValue(item?.res?.oil) }}</text>
             </view>
             <view class="data-item">
               <text class="data-label">蛋白质：</text>
-              <text class="data-value linoleic-value">{{ item.res.protein.toFixed(2) }}</text>
+              <text class="data-value linoleic-value">{{ formatValue(item?.res?.protein) }}</text>
             </view>
           </view>
         </view>
@@ -87,26 +85,47 @@ export default {
     handleItemClick(item) {
       this.$emit('item-click', item);
     },
+    
+    formatValue(value) {
+      if (value === undefined || value === null) {
+        return '0.00';
+      }
+      // 确保value是数字
+      const numValue = Number(value);
+      return isNaN(numValue) ? '0.00' : numValue.toFixed(2);
+    },
+
     timestamp_trnsfer(timestampInSeconds) {
+      if (!timestampInSeconds) {
+        return '未知时间';
+      }
 
-      // 将秒级时间戳转换为毫秒级时间戳
-      const timestampInMilliseconds = timestampInSeconds * 1000;
+      try {
+        // 将秒级时间戳转换为毫秒级时间戳
+        const timestampInMilliseconds = timestampInSeconds * 1000;
+        
+        // 创建一个 Date 对象
+        const date = new Date(timestampInMilliseconds);
+        
+        // 检查日期是否有效
+        if (isNaN(date.getTime())) {
+          return '未知时间';
+        }
 
-      // 创建一个 Date 对象
-      const date = new Date(timestampInMilliseconds);
+        // 获取年、月、日、时、分、秒
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
 
-      // 获取年、月、日、时、分、秒
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-
-      // 组合成普通时间格式
-      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-      return formattedDate;
+        // 组合成普通时间格式
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      } catch (e) {
+        console.error('时间戳转换失败:', e);
+        return '未知时间';
+      }
     }
   }
 }

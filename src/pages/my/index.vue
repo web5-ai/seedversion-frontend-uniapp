@@ -144,7 +144,8 @@ export default {
         isLoggedIn: false,
         nickname: '',
         userId: '',
-        avatar: '/static/images/avatar.svg',
+        // 修改默认头像路径
+        avatar: '/static/images/default-avatar.png', // 使用 png 格式可能更稳定
         phone: ''
       },
       appConfig: {
@@ -176,53 +177,38 @@ export default {
     // 检查登录状态
     checkLoginStatus() {
       try {
-        const token = uni.getStorageSync('token')
-        const storedUserInfo = uni.getStorageSync('userInfo')
+        const userInfo = uni.getStorageSync('userInfo');
+        const token = uni.getStorageSync('token');
         
-        if (token && storedUserInfo) {
-          this.loadUserInfo()
+        if (userInfo || token) {
+          this.loadUserInfo();
         } else {
-          this.redirectToLogin()
+          this.redirectToLogin();
         }
       } catch (e) {
-        console.error('检查登录状态失败:', e)
-        this.redirectToLogin()
+        console.error('检查登录状态失败:', e);
+        this.redirectToLogin();
       }
     },
 
     // 加载用户信息
-    async loadUserInfo() {
+    loadUserInfo() {
       try {
-        const storedUserInfo = uni.getStorageSync('userInfo')
-        if (storedUserInfo) {
+        const userInfo = uni.getStorageSync('userInfo');
+        if (userInfo) {
+          // 处理头像路径
+          const avatarPath = userInfo.avatar || '/static/images/default-avatar.png';
           this.userInfo = {
-            ...this.userInfo,
-            ...storedUserInfo,
-            isLoggedIn: true
-          }
-        } else {
-          // 如果本地没有用户信息，调用API获取
-          const token = uni.getStorageSync('token')
-          if (token) {
-            const userInfo = await this.fetchUserInfo(token)
-            if (userInfo) {
-              this.userInfo = {
-                ...this.userInfo,
-                ...userInfo,
-                isLoggedIn: true
-              }
-              // 保存到本地存储
-              uni.setStorageSync('userInfo', this.userInfo)
-            } else {
-              this.redirectToLogin()
-            }
-          } else {
-            this.redirectToLogin()
-          }
+            isLoggedIn: true,
+            nickname: userInfo.nickname,
+            userId: userInfo.userId,
+            // 确保头像路径正确
+            avatar: avatarPath.startsWith('http') ? avatarPath : this.getStaticPath(avatarPath)
+          };
         }
       } catch (e) {
-        console.error('加载用户信息失败:', e)
-        this.redirectToLogin()
+        console.error('加载用户信息失败:', e);
+        this.redirectToLogin();
       }
     },
 
@@ -230,10 +216,15 @@ export default {
     async fetchUserInfo(token) {
       return new Promise((resolve, reject) => {
         uni.request({
-          url: `${this.appConfig.serverBaseUrl}/api/user/info`,
-          method: 'GET',
+          url: `http://youcaihua-api.harmony-dev.com/api/user/info`,
+          method: 'POST',
           header: {
-            Authorization: token
+            Authorization: token,
+			      Server : true
+          },
+          data: {
+            phone: this.userInfo.phone,
+            code: this.userInfo.code
           },
           success: (res) => {
             if (res.data && res.data.code === 0) {
@@ -337,6 +328,20 @@ export default {
           }
         }
       })
+    },
+    // 添加一个处理静态资源路径的方法
+    getStaticPath(path) {
+      // 如果是网络图片，直接返回
+      if (path.startsWith('http')) {
+        return path;
+      }
+      // 根据平台处理本地路径
+      // #ifdef MP-WEIXIN
+      return path.startsWith('/') ? path.substr(1) : path;
+      // #endif
+      // #ifdef H5
+      return path;
+      // #endif
     }
   }
 }
