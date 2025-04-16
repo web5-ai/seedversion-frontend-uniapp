@@ -112,7 +112,8 @@ export default {
       isLoading: true,
       isEditing: false, // 编辑状态标识
       originalSampleData: {}, // 保存原始数据，用于取消编辑时恢复
-      statusBarHeight: 0 // 状态栏高度
+      statusBarHeight: 0, // 状态栏高度
+      recordId: '' // 记录ID，用于在onShow中重新获取数据
     };
   },
   onLoad(options) {
@@ -125,34 +126,23 @@ export default {
 
     // 从页面参数获取记录ID
     if (options.recordId) {
-      // TODO: 实现从服务器获取检测记录详情
-
-      // 发送请求/api/seed/detail
-      uni.request({
-        header: {
-          Authorization: uni.getStorageSync('token'),
-          Server: true
-        },
-        url: 'http://youcaihua-api.harmony-dev.com/api/seed/detail',
-        method: 'POST',
-        data: {
-          id: options.recordId // 假设ID是从页面参数中获取的
-        },
-        success: (res) => {
-          this.result = res; // 更新 result 数据
-          // oil protein数据取两位小数
-          this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
-          this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
-          // for (let key in this.result.data.data) {
-          //  console.log(key);
-          // }
-        }
-      })
+      this.recordId = options.recordId; // 保存记录ID以便在onShow中使用
+      this.fetchRecordDetail();
     }
     else {
-     console.error('未提供记录ID');
+     console.error('未提供记录ID'); 
     }
   },
+  
+  // 添加onShow生命周期函数，在页面每次显示时触发
+  onShow() {
+    // 如果有记录ID，则重新获取数据
+    if (this.recordId) {
+      console.log('页面显示，重新获取数据');
+      this.fetchRecordDetail();
+    }
+  },
+  
   methods: {
     // 返回上一页
     goBack() {
@@ -241,6 +231,42 @@ export default {
       // 跳转到反馈详情页面，传入反馈ID
       uni.navigateTo({
         url: `/pages/feedback/view?id=${this.result.data.data.feedback.id}`
+      });
+    },
+    
+    // 获取记录详情
+    fetchRecordDetail() {
+      uni.showLoading({ title: '加载中...' });
+      
+      uni.request({
+        header: {
+          Authorization: uni.getStorageSync('token'),
+          Server: true
+        },
+        url: 'http://youcaihua-api.harmony-dev.com/api/seed/detail',
+        method: 'POST',
+        data: {
+          id: this.recordId
+        },
+        success: (res) => {
+          this.result = res; // 更新 result 数据
+          if (this.result.data && this.result.data.data && this.result.data.data.res) {
+            // oil protein数据取两位小数
+            this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
+            this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
+          }
+          console.log('获取数据成功:', this.result.data.data);
+        },
+        fail: (err) => {
+          console.error('获取数据失败:', err);
+          uni.showToast({
+            title: '获取数据失败',
+            icon: 'none'
+          });
+        },
+        complete: () => {
+          uni.hideLoading();
+        }
       });
     }
   }

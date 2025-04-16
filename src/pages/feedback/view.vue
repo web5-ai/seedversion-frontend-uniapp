@@ -53,7 +53,7 @@
       </view>
 
       <!-- 实际成分信息 -->
-      <view class="feedback-section" v-if="feedbackData.actual_oil || feedbackData.actual_protein">
+      <view class="feedback-section" v-if="feedbackData.actual_oil || feedbackData.actual_protein || feedbackData.oil_yield">
         <view class="section-title">实际成分信息</view>
         <view class="detail-content">
           <view class="detail-item" v-if="feedbackData.actual_oil">
@@ -63,6 +63,10 @@
           <view class="detail-item" v-if="feedbackData.actual_protein">
             <text class="detail-label">蛋白质含量:</text>
             <text class="detail-value">{{ feedbackData.actual_protein }}%</text>
+          </view>
+          <view class="detail-item" v-if="feedbackData.oil_yield">
+            <text class="detail-label">出油率:</text>
+            <text class="detail-value">{{ feedbackData.oil_yield }}%</text>
           </view>
         </view>
       </view>
