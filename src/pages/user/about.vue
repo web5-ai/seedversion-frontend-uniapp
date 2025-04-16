@@ -8,7 +8,7 @@
         <view class="logo-box">
           <image src="/static/images/logo.png" mode="aspectFill" class="logo-image"></image>
         </view>
-        <view class="app-title">油菜籽成分检测系统</view>
+        <view class="app-title">S</view>
         <view class="app-version">版本: 1.0.0</view>
       </view>
       

@@ -4,7 +4,7 @@
     <!-- 协议内容 -->
     <scroll-view class="content" scroll-y>
       <view class="section">
-        <view class="title">油菜籽成分检测系统用户协议</view>
+        <view class="title">SeedVision用户协议</view>
         <view class="subtitle">最后更新时间：2024年4月8日</view>
         
         <view class="paragraph">

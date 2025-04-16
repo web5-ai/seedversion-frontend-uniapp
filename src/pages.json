@@ -3,7 +3,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "油菜籽成分检测系统",
+        "navigationBarTitleText": "SeedVision",
         "navigationBarBackgroundColor": "#4CAF50",
         "navigationBarTextStyle": "white",
         "navigationStyle": "custom"
@@ -39,6 +39,15 @@
       "path": "pages/feedback-list/index",
       "style": {
         "navigationBarTitleText": "反馈记录",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/feedback/view",
+      "style": {
+        "navigationBarTitleText": "反馈详情",
         "navigationBarBackgroundColor": "#4CAF50",
         "navigationBarTextStyle": "white",
         "navigationStyle": "custom"
@@ -107,7 +116,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "油菜籽成分检测系统",
+    "navigationBarTitleText": "SeedVision",
     "navigationBarBackgroundColor": "#4CAF50",
     "backgroundColor": "#F5F5F5"
   },

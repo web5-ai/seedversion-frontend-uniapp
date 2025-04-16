@@ -170,9 +170,10 @@ export default {
     
     // 查看反馈详情
     viewDetail(item) {
-      // uni.navigateTo({
-      //   url: `/pages/feedback/index?id=${item.id}`
-      // })
+      uni.setStorageSync('feedbackData', item)
+      uni.navigateTo({
+        url: `/pages/feedback/view?id=${item.id}`
+      })
     }
   }
 }

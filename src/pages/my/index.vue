@@ -6,7 +6,7 @@
         <image class="avatar" :src="userInfo.avatar" mode="aspectFill" alt="用户头像"></image>
         <view class="user-details">
           <text class="username">{{ userInfo.nickname || '未登录' }}</text>
-          <text v-if="userInfo.isLoggedIn" class="user-id">ID: {{ userInfo.userId }}</text>
+          <text v-if="userInfo.isLoggedIn" class="user-code">ID: {{ userInfo.code }}</text>
           <view v-else class="login-btn" @click="goToLogin">
             <text>点击登录/注册</text>
           </view>
@@ -146,16 +146,14 @@ export default {
         userId: '',
         // 修改默认头像路径
         avatar: '/static/images/default-avatar.png', // 使用 png 格式可能更稳定
-        phone: ''
+        phone: '',
+        code: ''
       },
       appConfig: {
-        version: '1.0.0',
+        version: '1.0.2',
         serverBaseUrl: ''
       }
     }
-  },
-  onShow() {
-    this.checkLoginStatus()
   },
   onLoad() {
     this.checkLoginStatus()
@@ -179,7 +177,7 @@ export default {
       try {
         const userInfo = uni.getStorageSync('userInfo');
         const token = uni.getStorageSync('token');
-        
+        console.log('检查登录状态:', { userInfo, token });
         if (userInfo || token) {
           this.loadUserInfo();
         } else {
@@ -202,6 +200,7 @@ export default {
             isLoggedIn: true,
             nickname: userInfo.nickname,
             userId: userInfo.userId,
+            code: userInfo.code,
             // 确保头像路径正确
             avatar: avatarPath.startsWith('http') ? avatarPath : this.getStaticPath(avatarPath)
           };
@@ -210,34 +209,6 @@ export default {
         console.error('加载用户信息失败:', e);
         this.redirectToLogin();
       }
-    },
-
-    // 从服务器获取用户信息
-    async fetchUserInfo(token) {
-      return new Promise((resolve, reject) => {
-        uni.request({
-          url: `http://youcaihua-api.harmony-dev.com/api/user/info`,
-          method: 'POST',
-          header: {
-            Authorization: token,
-			      Server : true
-          },
-          data: {
-            phone: this.userInfo.phone,
-            code: this.userInfo.code
-          },
-          success: (res) => {
-            if (res.data && res.data.code === 0) {
-              resolve(res.data.data)
-            } else {
-              reject(new Error('获取用户信息失败'))
-            }
-          },
-          fail: (err) => {
-            reject(err)
-          }
-        })
-      })
     },
 
     // 重定向到登录页

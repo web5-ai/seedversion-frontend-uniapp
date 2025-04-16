@@ -3,7 +3,7 @@
 
     <!-- 顶部标题栏 -->
     <view class="header">
-      <text class="header-title">油菜籽成分检测系统</text>
+      <text class="header-title">SeedVision</text>
     </view>
     
     <!-- 主体内容区 -->

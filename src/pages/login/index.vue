@@ -6,7 +6,7 @@
         <view class="logo">
           <image src="/static/images/logo.png" mode="aspectFit" class="logo-image"></image>
         </view>
-        <text class="app-title">油菜籽成分检测App</text>
+        <text class="app-title">SeedVision</text>
       </view>
       
       <!-- 表单区域 -->
@@ -187,6 +187,8 @@ export default {
          userInfo.birthday = res.data.data.birthday; // 假设服务器返回生日
          userInfo.address = res.data.data.address; // 假设服务器返回地址
          userInfo.email = res.data.data.email; // 假设服务器返回邮箱
+         userInfo.code = res.data.data.code; // 假设服务器返回用户编码
+         console.log('用户信息:', userInfo)
          uni.setStorageSync('userInfo', userInfo);
          console.log('用户信息存储成功:', userInfo);
         },
@@ -261,7 +263,6 @@ export default {
           });
         }
       }, 5000); // 5秒超时
-      console.log('开始登录')
       // 调用登录api
       uni.request({
         url: 'http://youcaihua-api.harmony-dev.com/api/user/loginByPhone',

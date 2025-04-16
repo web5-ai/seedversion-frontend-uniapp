@@ -66,7 +66,7 @@
       </view>
 
       <!-- 实际成分信息 -->
-      <view class="feedback-section" v-if="selectedFeedback === 1">
+      <view class="feedback-section">
         <view class="section-title">实际成分信息（如有）</view>
         <view class="input-group">
           <view class="input-row">
@@ -151,6 +151,7 @@ export default {
     // 获取上一页传递的数据
     if (options.recordId) {
       this.feedbackData = uni.getStorageSync('feedbackData');
+      uni.removeStorageSync('feedbackData'); // 清除缓存
       console.log('Feedback data:', this.feedbackData);
       // /api/feedback/detail
       uni.request({
@@ -198,10 +199,13 @@ export default {
           score: this.accuracyRating,                                 // 评分
           types: this.feedbackOptions[this.selectedFeedback].value,   // 反馈类型值
           types_msg: this.feedbackOptions[this.selectedFeedback].label, // 反馈类型文字
-          detail: this.buildDetailContent(),                          // 详细内容
-          images: [this.feedbackData.image]                           // 图片URL数组
+          detail: this.feedbackContent,                               // 详细内容
+          // 新增字段
+          actual_oil: this.actualOil || null,                         // 实际油脂含量
+          actual_protein: this.actualProtein || null,                 // 实际蛋白质含量
+          contact: this.contactInfo || ''                             // 联系方式
         };
-
+        console.log('Feedback data to submit:', feedbackData);
         const res = await uni.request({
           url: 'http://youcaihua-api.harmony-dev.com/api/feedback/add',
           method: 'POST',
@@ -235,25 +239,7 @@ export default {
       }
     },
 
-    // 构建详细反馈内容
-    buildDetailContent() {
-      let detail = this.feedbackContent;
-
-      // 如果是"结果不准确"且填写了实际值，添加到详细内容中
-      if (this.selectedFeedback === 1) {
-        if (this.actualOil || this.actualProtein) {
-          detail += '\n\n实际数据：';
-          if (this.actualOil) detail += `\n油脂含量: ${this.actualOil}%`;
-          if (this.actualProtein) detail += `\n蛋白质含量: ${this.actualProtein}%`;
-        }
-      }
-
-      if (this.contactInfo) {
-        detail += `\n\n联系方式: ${this.contactInfo}`;
-      }
-
-      return detail;
-    }
+    // 删除不再需要的 buildDetailContent 方法，因为现在各字段单独发送
   }
 }
 </script>
