@@ -6,7 +6,10 @@
         "navigationBarTitleText": "SeedVision",
         "navigationBarBackgroundColor": "#4CAF50",
         "navigationBarTextStyle": "white",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "app-plus":{
+          "titleNView": false
+        }
       }
     },
     {

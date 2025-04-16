@@ -97,7 +97,8 @@
 
     <!-- 底部按钮 -->
     <view class="footer-action">
-      <button class="action-button" @click="saveReport">提供反馈</button>
+      <button class="action-button" @click="saveReport" v-if="!result.data.data.feedback">提供反馈</button>
+      <button class="action-button view-button" @click="viewFeedback" v-else>查看详情</button>
     </view>
   </view>
 </template>
@@ -117,7 +118,7 @@ export default {
     // 从页面参数获取记录ID
     if (options.recordId) {
       // TODO: 实现从服务器获取检测记录详情
-      
+
       // 发送请求/api/seed/detail
       uni.request({
         header: {
@@ -135,13 +136,13 @@ export default {
           this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
           this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
           // for (let key in this.result.data.data) {
-          //  console.log(key); 
+          //  console.log(key);
           // }
         }
       })
     }
     else {
-     console.error('未提供记录ID'); 
+     console.error('未提供记录ID');
     }
   },
   methods: {
@@ -223,6 +224,16 @@ export default {
       uni.navigateTo({
         url: `/pages/feedback/index?recordId=${this.result.data.data.id}`
       });
+    },
+
+    // 查看反馈详情
+    viewFeedback() {
+      // 将数据存入缓存
+      uni.setStorageSync('feedbackData', this.result.data.data);
+      // 跳转到反馈详情页面，传入反馈ID
+      uni.navigateTo({
+        url: `/pages/feedback/view?id=${this.result.data.data.feedback.id}`
+      });
     }
   }
 }
@@ -238,7 +249,7 @@ export default {
 
 /* 顶部导航栏 */
 .navigation-bar {
-  
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -481,5 +492,9 @@ export default {
   border-radius: 6px;
   font-size: 16px;
   text-align: center;
+}
+
+.view-button {
+  background-color: #2196F3; /* 使用不同的颜色区分查看详情按钮 */
 }
 </style>
