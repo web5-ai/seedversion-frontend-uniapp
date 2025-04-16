@@ -8,8 +8,8 @@
         <view class="logo-box">
           <image src="/static/images/logo.png" mode="aspectFill" class="logo-image"></image>
         </view>
-        <view class="app-title">S</view>
-        <view class="app-version">版本: 1.0.0</view>
+        <view class="app-title">SeedVision</view>
+        <view class="app-version">版本: 1.1.0</view>
       </view>
       
       <!-- 应用简介 -->

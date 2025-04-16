@@ -83,6 +83,13 @@
               <text class="input-suffix">%</text>
             </view>
           </view>
+          <view class="input-row">
+            <text class="input-label">出油率:</text>
+            <view class="input-container">
+              <input type="digit" v-model="oilYield" class="input-field" placeholder="请输入实际出油率" />
+              <text class="input-suffix">%</text>
+            </view>
+          </view>
         </view>
       </view>
 
@@ -139,6 +146,7 @@ export default {
       feedbackContent: '',        // 反馈内容
       actualOil: '',              // 实际油脂含量
       actualProtein: '',          // 实际蛋白质含量
+      oilYield: '',               // 出油率
       contactInfo: ''             // 联系方式
     }
   },
@@ -209,6 +217,7 @@ export default {
           // 新增字段
           actual_oil: this.actualOil || null,                         // 实际油脂含量
           actual_protein: this.actualProtein || null,                 // 实际蛋白质含量
+          oil_yield: this.oilYield || null,                           // 出油率
           contact: this.contactInfo || ''                             // 联系方式
         };
         console.log('Feedback data to submit:', feedbackData);
