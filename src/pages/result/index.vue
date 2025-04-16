@@ -1,13 +1,13 @@
 <template>
   <view class="page-container">
     <!-- 顶部导航栏 -->
-    <view class="navigation-bar">
+    <view class="navigation-bar" :style="{ height: (44 + statusBarHeight) + 'px', paddingTop: statusBarHeight + 'px' }">
       <view class="nav-left">
         <view class="back-button" @click="goBack">
           <text class="back-icon">&lt;</text>
         </view>
       </view>
-      <view class="nav-title">油菜籽成分分析结果</view>
+      <view class="nav-title">分析结果</view>
       <view class="nav-right">
         <view class="share-button" @click="shareResult">分享</view>
       </view>
@@ -111,10 +111,18 @@ export default {
       result: {},
       isLoading: true,
       isEditing: false, // 编辑状态标识
-      originalSampleData: {} // 保存原始数据，用于取消编辑时恢复
+      originalSampleData: {}, // 保存原始数据，用于取消编辑时恢复
+      statusBarHeight: 0 // 状态栏高度
     };
   },
   onLoad(options) {
+    // 获取状态栏高度
+    const systemInfo = uni.getSystemInfoSync();
+    this.statusBarHeight = systemInfo.statusBarHeight || 0;
+    console.log('页面状态栏高度:', this.statusBarHeight);
+
+    // 在uni-app中使用内联样式来适应状态栏高度
+
     // 从页面参数获取记录ID
     if (options.recordId) {
       // TODO: 实现从服务器获取检测记录详情
@@ -249,11 +257,10 @@ export default {
 
 /* 顶部导航栏 */
 .navigation-bar {
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 70px; /* 默认高度，会被动态覆盖 */
   background-color: #4CAF50;
   color: white;
   padding: 0 15px;

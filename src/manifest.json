@@ -127,7 +127,7 @@
             }
         },
         "template" : "index.html",
-        "title" : "油菜籽成分检测系统",
+        "title" : "SeedVision",
         "devServer" : {
             "https" : false,
             "port" : 8080

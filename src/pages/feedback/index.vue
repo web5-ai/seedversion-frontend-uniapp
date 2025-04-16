@@ -1,7 +1,7 @@
 <template>
   <view class="page-container">
     <!-- 顶部导航栏 -->
-    <view class="navigation-bar">
+    <view class="navigation-bar" :style="{ height: (44 + statusBarHeight) + 'px', paddingTop: statusBarHeight + 'px' }">
       <view class="nav-left">
         <view class="back-button" @click="goBack">
           <text class="back-icon">&lt;</text>
@@ -33,8 +33,8 @@
       <view class="feedback-section">
         <view class="section-title">反馈类型</view>
         <view class="feedback-options">
-          <view 
-            v-for="(option, index) in feedbackOptions" 
+          <view
+            v-for="(option, index) in feedbackOptions"
             :key="index"
             class="option-item"
             :class="{ active: selectedFeedback === index }"
@@ -52,8 +52,8 @@
       <view class="feedback-section">
         <view class="section-title">准确性评分</view>
         <view class="rating-container">
-          <view 
-            v-for="i in 5" 
+          <view
+            v-for="i in 5"
             :key="i"
             class="rating-star"
             :class="{ active: i <= accuracyRating }"
@@ -89,8 +89,8 @@
       <!-- 详细反馈 -->
       <view class="feedback-section">
         <view class="section-title">详细说明（选填）</view>
-        <textarea 
-          class="feedback-textarea" 
+        <textarea
+          class="feedback-textarea"
           v-model="feedbackContent"
           placeholder="请详细描述您的反馈内容，以帮助我们提升检测准确性"
           maxlength="200"
@@ -101,9 +101,9 @@
       <!-- 联系方式 -->
       <view class="feedback-section">
         <view class="section-title">联系方式（选填）</view>
-        <input 
-          type="text" 
-          v-model="contactInfo" 
+        <input
+          type="text"
+          v-model="contactInfo"
           class="contact-input"
           placeholder="留下您的联系方式，我们可能会联系您了解更多信息"
         />
@@ -112,8 +112,8 @@
 
     <!-- 提交按钮 -->
     <view class="submit-container">
-      <button 
-        class="submit-button" 
+      <button
+        class="submit-button"
         :disabled="!isValidFeedback"
         :class="{ disabled: !isValidFeedback }"
         @click="submitFeedback"
@@ -127,6 +127,7 @@ export default {
   data() {
     return {
       feedbackData: {}, // 从上一页传来的数据
+      statusBarHeight: 0, // 状态栏高度
       feedbackOptions: [
         { label: '结果不准确', value: 'inaccurate' },
         { label: '功能建议', value: 'feature' },
@@ -148,6 +149,11 @@ export default {
     }
   },
   onLoad(options) {
+    // 获取状态栏高度
+    const systemInfo = uni.getSystemInfoSync();
+    this.statusBarHeight = systemInfo.statusBarHeight || 0;
+    console.log('页面状态栏高度:', this.statusBarHeight);
+
     // 获取上一页传递的数据
     if (options.recordId) {
       this.feedbackData = uni.getStorageSync('feedbackData');
@@ -157,10 +163,10 @@ export default {
       uni.request({
         url: 'http://youcaihua-api.harmony-dev.com/api/feedback/detail',
         method: 'POST',
-        data: { id: options.recordId }, 
+        data: { id: options.recordId },
         header: {
           Authorization: uni.getStorageSync('token'),
-          Server: true // 服务器端接收的字段名 
+          Server: true // 服务器端接收的字段名
         }
       })
     }
@@ -170,17 +176,17 @@ export default {
     goBack() {
       uni.navigateBack();
     },
-    
+
     // 选择反馈类型
     selectFeedback(index) {
       this.selectedFeedback = index;
     },
-    
+
     // 设置评分
     setRating(rating) {
       this.accuracyRating = rating;
     },
-    
+
     // 获取评分文字描述
     getRatingLabel(rating) {
       const labels = ['', '很不准确', '不太准确', '一般', '比较准确', '非常准确'];
@@ -224,7 +230,7 @@ export default {
             icon: 'success',
             duration: 2000
           });
-          
+
           setTimeout(() => uni.navigateBack(), 2000);
         } else {
           throw new Error(res.data.msg || '提交失败');
@@ -542,4 +548,4 @@ export default {
   background-color: #cccccc;
   color: #ffffff;
 }
-</style> 
+</style>

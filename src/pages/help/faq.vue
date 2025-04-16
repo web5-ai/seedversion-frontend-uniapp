@@ -1,10 +1,4 @@
 <template>
-  <!-- 标题 -->
-  <view class="header">
-    <!-- 返回键 -->
-    <image src="/static/icons/back.svg" class="back-icon" mode="aspectFill" alt="返回图标" @click="goBack"></image>
-    <text class="header-title">常见问题</text>
-  </view>
   <view class="page-container">
     <!-- 内容区域 -->
     <view class="content">

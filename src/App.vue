@@ -8,16 +8,31 @@
 export default {
   data() {
     return {
-      isNavigating: false // 用于防止重复导航
+      isNavigating: false, // 用于防止重复导航
+      statusBarHeight: 0 // 状态栏高度
     }
   },
 
   onLaunch: function() {
     // App 启动时执行一次登录检查
     this.checkLogin();
+
+    // 获取状态栏高度
+    this.getStatusBarHeight();
   },
 
   methods: {
+    // 获取状态栏高度
+    getStatusBarHeight() {
+      // 获取系统信息
+      const systemInfo = uni.getSystemInfoSync();
+      this.statusBarHeight = systemInfo.statusBarHeight || 0;
+
+      // 将状态栏高度保存到全局变量
+      uni.setStorageSync('statusBarHeight', this.statusBarHeight);
+      console.log('状态栏高度:', this.statusBarHeight);
+    },
+
     checkLogin() {
       try {
         // 如果正在导航中，直接返回
@@ -28,11 +43,11 @@ export default {
         const token = uni.getStorageSync('token');
         const pages = getCurrentPages();
         const currentPage = pages[0]?.route || '';
-        
+
         // 如果没有token且不在登录页，跳转到登录页
         if (!token && currentPage !== 'pages/login/index') {
           this.isNavigating = true;
-          
+
           uni.reLaunch({
             url: '/pages/login/index',
             complete: () => {
@@ -47,7 +62,7 @@ export default {
         console.error('检查登录状态失败:', e);
         if (!this.isNavigating) {
           this.isNavigating = true;
-          
+
           uni.reLaunch({
             url: '/pages/login/index',
             complete: () => {
@@ -120,4 +135,4 @@ button::after {
 .fade-enter, .fade-leave-to {
   opacity: 0;
 }
-</style> 
+</style>

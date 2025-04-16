@@ -59,10 +59,7 @@
     {
       "path": "pages/help/faq",
       "style": {
-        "navigationBarTitleText": "常见问题",
-        "navigationBarBackgroundColor": "#4CAF50",
-        "navigationBarTextStyle": "white",
-        "navigationStyle": "custom"
+        "navigationBarTitleText": "常见问题"
       }
     },
     {
@@ -92,10 +89,7 @@
     {
       "path": "pages/help/feedback",
       "style": {
-        "navigationBarTitleText": "意见反馈",
-        "navigationBarBackgroundColor": "#4CAF50",
-        "navigationBarTextStyle": "white",
-        "navigationStyle": "custom"
+        "navigationBarTitleText": "意见反馈"
       }
     },
     {

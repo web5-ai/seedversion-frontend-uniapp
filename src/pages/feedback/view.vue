@@ -1,7 +1,7 @@
 <template>
   <view class="page-container">
     <!-- 顶部导航栏 -->
-    <view class="navigation-bar">
+    <view class="navigation-bar" :style="{ height: (44 + statusBarHeight) + 'px', paddingTop: statusBarHeight + 'px' }">
       <view class="nav-left">
         <view class="back-button" @click="goBack">
           <text class="back-icon">&lt;</text>
@@ -107,9 +107,15 @@ export default {
   data() {
     return {
       feedbackData: {}, // 从上一页传来的数据
+      statusBarHeight: 0 // 状态栏高度
     }
   },
   onLoad(options) {
+    // 获取状态栏高度
+    const systemInfo = uni.getSystemInfoSync();
+    this.statusBarHeight = systemInfo.statusBarHeight || 0;
+    console.log('页面状态栏高度:', this.statusBarHeight);
+
     // 获取上一页传递的数据
     if (options.id) {
       this.feedbackData = uni.getStorageSync('feedbackData');
