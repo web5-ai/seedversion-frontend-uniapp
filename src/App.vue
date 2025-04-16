@@ -30,7 +30,7 @@ export default {
 
       // 将状态栏高度保存到全局变量
       uni.setStorageSync('statusBarHeight', this.statusBarHeight);
-      console.log('状态栏高度:', this.statusBarHeight);
+      // console.log('状态栏高度:', this.statusBarHeight);
     },
 
     checkLogin() {
