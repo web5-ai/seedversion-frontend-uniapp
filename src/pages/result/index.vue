@@ -20,7 +20,6 @@
         <text class="view-full" @click="viewFullImage">点击查看原图</text>
       </view>
       <view class="sample-image-container">
-        <!-- 修改为新的图片路径 -->
         <image :src="result.data.data.image" mode="aspectFit" class="sample-image" />
       </view>
     </view>
@@ -82,11 +81,9 @@
         <text class="section-title">主要成分含量</text>
       </view>
       <view class="result-chart">
-        <!-- 修改循环遍历的数据 -->
         <view v-for="(field, index) in ['oil', 'protein']" :key="index" class="chart-item">
           <view class="chart-label">{{ field === 'oil' ? '油脂' : '蛋白质' }}</view>
           <view class="chart-bar-container">
-            <!-- 修改为新的含量数据 -->
             <view class="chart-bar" :style="{ width: result.data.data.res[field] + '%' }">
               <text class="chart-value">{{ result.data.data.res[field] + '%' }}</text>
             </view>
@@ -120,9 +117,6 @@ export default {
     // 获取状态栏高度
     const systemInfo = uni.getSystemInfoSync();
     this.statusBarHeight = systemInfo.statusBarHeight || 0;
-    console.log('页面状态栏高度:', this.statusBarHeight);
-
-    // 在uni-app中使用内联样式来适应状态栏高度
 
     // 从页面参数获取记录ID
     if (options.recordId) {
@@ -130,19 +124,18 @@ export default {
       this.fetchRecordDetail();
     }
     else {
-     console.error('未提供记录ID'); 
+     console.error('未提供记录ID');
     }
   },
-  
+
   // 添加onShow生命周期函数，在页面每次显示时触发
   onShow() {
     // 如果有记录ID，则重新获取数据
     if (this.recordId) {
-      console.log('页面显示，重新获取数据');
       this.fetchRecordDetail();
     }
   },
-  
+
   methods: {
     // 返回上一页
     goBack() {
@@ -153,7 +146,7 @@ export default {
     shareResult() {
       uni.showActionSheet({
         itemList: ['分享到微信', '保存图片', '复制链接'],
-        success: (res) => {
+        success: () => {
           // TODO: 实现分享功能
           uni.showToast({
             title: '分享功能开发中',
@@ -193,14 +186,14 @@ export default {
           Authorization: uni.getStorageSync('token'),
           Server: true
         },
-        success: (res) => {
+        success: () => {
           uni.showToast({
             title: '保存成功',
             icon: 'success'
           });
           this.isEditing = false;
         },
-        fail: (err) => {
+        fail: () => {
           uni.showToast({
             title: '请求失败',
             icon: 'none'
@@ -233,11 +226,11 @@ export default {
         url: `/pages/feedback/view?id=${this.result.data.data.feedback.id}`
       });
     },
-    
+
     // 获取记录详情
     fetchRecordDetail() {
       uni.showLoading({ title: '加载中...' });
-      
+
       uni.request({
         header: {
           Authorization: uni.getStorageSync('token'),
@@ -255,7 +248,7 @@ export default {
             this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
             this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
           }
-          console.log('获取数据成功:', this.result.data.data);
+
         },
         fail: (err) => {
           console.error('获取数据失败:', err);

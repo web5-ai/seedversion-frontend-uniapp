@@ -160,13 +160,11 @@ export default {
     // 获取状态栏高度
     const systemInfo = uni.getSystemInfoSync();
     this.statusBarHeight = systemInfo.statusBarHeight || 0;
-    console.log('页面状态栏高度:', this.statusBarHeight);
 
     // 获取上一页传递的数据
     if (options.recordId) {
       this.feedbackData = uni.getStorageSync('feedbackData');
       uni.removeStorageSync('feedbackData'); // 清除缓存
-      console.log('Feedback data:', this.feedbackData);
       // /api/feedback/detail
       uni.request({
         url: 'http://youcaihua-api.harmony-dev.com/api/feedback/detail',
@@ -220,7 +218,7 @@ export default {
           oil_yield: this.oilYield || null,                           // 出油率
           contact: this.contactInfo || ''                             // 联系方式
         };
-        console.log('Feedback data to submit:', feedbackData);
+
         const res = await uni.request({
           url: 'http://youcaihua-api.harmony-dev.com/api/feedback/add',
           method: 'POST',
@@ -252,9 +250,7 @@ export default {
           icon: 'none'
         });
       }
-    },
-
-    // 删除不再需要的 buildDetailContent 方法，因为现在各字段单独发送
+    }
   }
 }
 </script>

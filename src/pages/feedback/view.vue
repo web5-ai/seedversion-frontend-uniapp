@@ -15,7 +15,7 @@
     <view class="feedback-container">
       <!-- 样本预览 -->
       <view class="sample-preview">
-        <image :src="feedbackData.image" mode="aspectFill" class="sample-image" @click="previewImage(feedbackData.images[0])" />
+        <image :src="feedbackData.image" mode="aspectFill" class="sample-image" @click="previewImage(feedbackData.image)" />
         <view class="sample-info">
           <view class="info-row">
             <text class="info-label">油脂含量:</text>
@@ -118,7 +118,6 @@ export default {
     // 获取状态栏高度
     const systemInfo = uni.getSystemInfoSync();
     this.statusBarHeight = systemInfo.statusBarHeight || 0;
-    console.log('页面状态栏高度:', this.statusBarHeight);
 
     // 获取上一页传递的数据
     if (options.id) {
@@ -176,7 +175,7 @@ export default {
       })
         }
       })
-      // console.log('Feedback data:', this.feedbackData);
+
     }
   },
   methods: {
