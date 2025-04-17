@@ -124,10 +124,9 @@ export default {
       this.fetchRecordDetail();
     }
     else {
-     console.error('未提供记录ID');
+     console.error('未提供记录ID'); 
     }
   },
-
   // 添加onShow生命周期函数，在页面每次显示时触发
   onShow() {
     // 如果有记录ID，则重新获取数据
@@ -248,7 +247,6 @@ export default {
             this.result.data.data.res.oil = this.result.data.data.res.oil.toFixed(2);
             this.result.data.data.res.protein = this.result.data.data.res.protein.toFixed(2);
           }
-
         },
         fail: (err) => {
           console.error('获取数据失败:', err);
