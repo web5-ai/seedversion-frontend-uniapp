@@ -124,7 +124,7 @@ export default {
       this.fetchRecordDetail();
     }
     else {
-     console.error('未提供记录ID'); 
+     console.error('未提供记录ID');
     }
   },
   // 添加onShow生命周期函数，在页面每次显示时触发
@@ -138,7 +138,10 @@ export default {
   methods: {
     // 返回上一页
     goBack() {
-      uni.navigateBack();
+      // 直接返回到首页
+      uni.switchTab({
+        url: '/pages/index/index'
+      });
     },
 
     // 分享结果

@@ -3,9 +3,9 @@
     <!-- 图片预览区域 -->
     <view class="preview-wrapper">
       <view class="preview-container">
-        <image 
-          :src="imagePath" 
-          mode="aspectFit" 
+        <image
+          :src="imagePath"
+          mode="aspectFit"
           class="preview-image"
         />
         <!-- 检测中状态显示 -->
@@ -36,7 +36,7 @@
         <image src="/static/icons/info.svg" class="tip-icon" alt="提示图标" />
         <text class="tips-title">拍照注意事项</text>
       </view>
-      
+
       <view class="tips-list">
         <view class="tip-item">
           <text class="tip-number">1</text>
@@ -56,49 +56,26 @@
         </view>
       </view>
     </view>
-    <!-- 检测结果区域 -->
-    <view class="result-container" v-if="!analyzing && hasResult">
-      <view class="result-card">
-        <view class="result-header">
-          <text class="result-title">检测结果</text>
-          <text class="result-date">{{ formatDate(new Date()) }}</text>
-        </view>
-        
-        <view class="result-content">
-          <view class="result-item">
-            <text class="item-label">油脂含量</text>
-            <text class="item-value">{{ result.oil }}</text>
-          </view>
-          <view class="result-item">
-            <text class="item-label">蛋白质含量</text>
-            <text class="item-value">{{ result.protein }}</text>
-          </view>
-        </view>
-        
-        <view class="result-footer">
-          <text class="result-note">以上数据仅供参考，详细分析请咨询专业人士</text>
-        </view>
-      </view>
-    </view>
+
     <!-- 操作按钮区域（悬浮） -->
     <view class="floating-action-container">
       <view class="action-buttons">
-        <button 
-          class="action-button cancel-button" 
+        <button
+          class="action-button cancel-button"
           @click="handleCancel"
           :disabled="analyzing"
         >{{ source === 'detail' ? '返回' : '取消' }}</button>
-        
-        <button 
+
+        <button
           v-if="!hasResult && source !== 'detail'"
-          class="action-button confirm-button" 
+          class="action-button confirm-button"
           @click="handleAnalyze"
           :disabled="analyzing"
         >开始分析</button>
-        
-        <button 
+
+        <button
           v-else-if="source !== 'detail'"
-          class="action-button confirm-button" 
+          class="action-button confirm-button"
           @click="handleSave"
         >保存结果</button>
       </view>
@@ -120,7 +97,7 @@ export default {
       hasResult: false,
       // 检测结果数据
       result: { },
-      // 来源（camera-相机拍照，album-相册选择）
+      // 来源（camera-相机拍照，album-相册选择，detail-详情页，result-结果页）
       source: 'camera',
       // 记录ID
       recordId: null,
@@ -136,23 +113,24 @@ export default {
       this.imagePath = decodeURIComponent(options.imagePath);
       // 获取图片本地路径
     }
-    
+
     if (options.source) {
       this.source = options.source;
     }
-    
+
     // 如果是从详情页跳转过来
     if (this.source === 'detail' && options.recordId) {
       this.recordId = options.recordId;
       // 从全局状态或持久化存储中获取记录详情
       // 这里为了演示，直接模拟加载结果
       setTimeout(() => {
-        // this.result = {
-        //   oil: '42.8%',
-        //   protein: '23.5%',
-        // };
         this.hasResult = true;
       }, 500);
+    }
+
+    // 如果是从结果页返回
+    if (this.source === 'result') {
+      // 不需要做特殊处理，handleCancel 方法会处理返回逻辑
     }
   },
   methods: {
@@ -174,7 +152,7 @@ export default {
                   title: '正在分析...分析完成后跳转到结果页', // 加载提示
                   mask: true // 显示透明蒙层，防止触摸穿透s
                 })
-      this.analyzing = true;  
+      this.analyzing = true;
       // 嵌套请求，先上传文件，成功后再进行分析，避免顺序错误
       uni.uploadFile({
         url: 'http://youcaihua-api.harmony-dev.com/api/ajax/upload', // 替换为你的API地址
@@ -188,7 +166,7 @@ export default {
         success: (res) => {
           // 检查res.data的形式
           if (typeof res.data === 'string') {
-            res.data = JSON.parse(res.data); // 如果是字符串，尝试解析为JSON对象 
+            res.data = JSON.parse(res.data); // 如果是字符串，尝试解析为JSON对象
           }
           console.log('Upload successful: ', res.data); // 打印服务器返回的数据
           this.imageUrl = res.data.data.file.url; // 保存图片URL
@@ -204,35 +182,35 @@ export default {
 
             header: {
               Authorization: uni.getStorageSync('token'),
-              Server: true 
+              Server: true
             },
-            
+
             success: (res) => {
               if (res.data.code == 0) {
                 uni.showModal({
                   title: '提示',
                   content: res.data.msg, // 显示服务器返回的错误信息
-                  showCancel: false, // 隐藏取消按钮 
+                  showCancel: false, // 隐藏取消按钮
                 })
                 uni.hideLoading(); // 隐藏加载提示
               }
               else {
-                console.log(res.data); // 打印服务器返回的数据 
+                console.log(res.data); // 打印服务器返回的数据
                 this.result = res.data.data
-                console.log(this.result)
                 uni.hideLoading(); // 隐藏加载提示
-                this.hasResult = true;
+
                 // 发送事件，通知首页添加新记录
                 uni.$emit('addDetectionRecord', this.result);
+
                 // 分析完成，跳转到结果页面
-                uni.navigateTo({
+                uni.redirectTo({
                   url: `/pages/result/index?recordId=${this.result.id}`
                 });
               }
             },
 
             fail: (err) => {
-              console.error('Analysis failed:', err); 
+              console.error('Analysis failed:', err);
             }
 
           })
@@ -242,11 +220,11 @@ export default {
           console.error('Upload failed:', err); // 打印错误信息
         }
       })
-      
+
       this.analyzing = false;
 
     },
-    
+
     // 保存检测结果
     handleSave() {
       // 创建检测记录
@@ -257,12 +235,12 @@ export default {
         oil: this.result.oil,
         protein: this.result.protein,
       };
-      
+
       // 发送事件，通知首页添加新记录
       uni.$emit('addDetectionRecord', record);
-      
+
       // TODO: 保存到本地或上传到服务器
-      
+
       uni.showToast({
         title: '保存成功',
         icon: 'success',
@@ -277,12 +255,20 @@ export default {
         }
       });
     },
-    
+
     // 取消操作
     handleCancel() {
-      uni.navigateBack({
-        delta: 1
-      });
+      // 如果是从结果页返回，则直接返回到首页
+      if (this.source === 'result') {
+        uni.switchTab({
+          url: '/pages/index/index'
+        });
+      } else {
+        // 否则正常返回上一页
+        uni.navigateBack({
+          delta: 1
+        });
+      }
     }
   }
 }
@@ -574,4 +560,4 @@ export default {
   background-color: #4CAF50;
   color: #ffffff;
 }
-</style> 
+</style>

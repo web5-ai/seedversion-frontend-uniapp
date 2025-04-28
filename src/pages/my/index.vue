@@ -13,7 +13,7 @@
         </view>
       </view>
     </view>
-    
+
     <!-- 功能选项列表 -->
     <view class="function-list">
       <!-- 我的检测 -->
@@ -40,7 +40,7 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 账户与安全 -->
       <view class="section">
         <view class="section-title">账户与安全</view>
@@ -65,7 +65,7 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 帮助与反馈 -->
       <view class="section">
         <view class="section-title">帮助与反馈</view>
@@ -117,12 +117,12 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 登出按钮 -->
       <view class="logout-section" v-if="userInfo.isLoggedIn">
         <button class="logout-button" @click="logout">退出登录</button>
       </view>
-      
+
       <!-- 版本信息 -->
       <view class="version-info">
         <text>版本 {{ appConfig.version }}</text>
@@ -156,8 +156,12 @@ export default {
     }
   },
   onLoad() {
-    this.checkLoginStatus()
     this.loadAppConfig()
+  },
+
+  // 添加onShow生命周期函数，每次页面显示时都检查登录状态和加载用户信息
+  onShow() {
+    this.checkLoginStatus()
   },
   methods: {
     // 加载应用配置
@@ -177,10 +181,15 @@ export default {
       try {
         const userInfo = uni.getStorageSync('userInfo');
         const token = uni.getStorageSync('token');
-        console.log('检查登录状态:', { userInfo, token });
-        if (userInfo || token) {
-          this.loadUserInfo();
+
+        if (userInfo && token) {
+          // 清除缓存中的用户信息，强制重新加载
+          this.loadUserInfo(true);
+        } else if (token) {
+          // 有token但没有用户信息，尝试从服务器获取用户信息
+          this.fetchUserInfo(token);
         } else {
+          // 没有token，重定向到登录页
           this.redirectToLogin();
         }
       } catch (e) {
@@ -189,21 +198,83 @@ export default {
       }
     },
 
+    // 从服务器获取最新的用户信息
+    fetchUserInfo(token) {
+      uni.showLoading({ title: '加载中...' });
+
+      uni.request({
+        url: 'http://youcaihua-api.harmony-dev.com/api/user/info',
+        method: 'POST',
+        header: {
+          Authorization: token,
+          Server: true
+        },
+        success: (res) => {
+          if (res.data.code === 1 && res.data.data) {
+            // 更新本地存储的用户信息
+            const userInfo = {
+              userId: res.data.data.id,
+              nickname: res.data.data.nickname,
+              phone: res.data.data.mobile,
+              avatar: res.data.data.avatar,
+              gender: res.data.data.gender,
+              birthday: res.data.data.birthday,
+              address: res.data.data.address,
+              email: res.data.data.email,
+              code: res.data.data.code
+            };
+
+            uni.setStorageSync('userInfo', userInfo);
+            this.loadUserInfo(false);
+          } else {
+            // 获取用户信息失败，可能是token过期
+            uni.removeStorageSync('token');
+            this.redirectToLogin();
+          }
+        },
+        fail: () => {
+          uni.showToast({
+            title: '获取用户信息失败',
+            icon: 'none'
+          });
+          this.redirectToLogin();
+        },
+        complete: () => {
+          uni.hideLoading();
+        }
+      });
+    },
+
     // 加载用户信息
-    loadUserInfo() {
+    loadUserInfo(forceRefresh = false) {
       try {
+        // 如果强制刷新，则重新从服务器获取用户信息
+        if (forceRefresh) {
+          const token = uni.getStorageSync('token');
+          if (token) {
+            this.fetchUserInfo(token);
+            return;
+          }
+        }
+
         const userInfo = uni.getStorageSync('userInfo');
         if (userInfo) {
           // 处理头像路径
           const avatarPath = userInfo.avatar || '/static/images/default-avatar.png';
           this.userInfo = {
             isLoggedIn: true,
-            nickname: userInfo.nickname,
+            nickname: userInfo.nickname || '用户' + userInfo.userId.substr(-4),
             userId: userInfo.userId,
-            code: userInfo.code,
+            code: userInfo.code || '未设置',
+            phone: userInfo.phone,
             // 确保头像路径正确
             avatar: avatarPath.startsWith('http') ? avatarPath : this.getStaticPath(avatarPath)
           };
+        } else if (uni.getStorageSync('token')) {
+          // 有token但没有用户信息，尝试从服务器获取
+          this.fetchUserInfo(uni.getStorageSync('token'));
+        } else {
+          this.redirectToLogin();
         }
       } catch (e) {
         console.error('加载用户信息失败:', e);
@@ -234,7 +305,7 @@ export default {
 
     // 跳转到指定页面
     navigateTo(url) {
-      if (url.includes('/pages/favorite/index') || 
+      if (url.includes('/pages/favorite/index') ||
           url.includes('/pages/settings/account') ||
           url.includes('/pages/settings/security')) {
         this.showDevelopingFeature(url.includes('favorite') ? '收藏' : '账户设置')
@@ -270,7 +341,8 @@ export default {
               // 清除本地存储
               uni.removeStorageSync('token')
               uni.removeStorageSync('userInfo')
-              
+              uni.removeStorageSync('hasUsedUpload') // 清除上传功能使用状态，使用户再次登录时看到提示
+
               // 重置用户信息
               this.userInfo = {
                 isLoggedIn: false,
@@ -490,4 +562,4 @@ export default {
   width: 24px;
   height: 24px;
 }
-</style> 
+</style>
