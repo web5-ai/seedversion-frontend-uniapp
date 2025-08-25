@@ -46,33 +46,44 @@ export const API_CONFIG = {
 export const PredictDataProcessor = {
   // 处理V1版本的返回数据
   processV1Data(apiResponse) {
-    const predictData = apiResponse.data.data;
-    
+    const recordData = apiResponse.data.data;
+    const detectResult = recordData.res;
+
     // 检查是否检测到种子对象
-    if (!predictData.detected) {
+    if (!detectResult.detected) {
       return {
         success: false,
         detected: false,
-        message: predictData.message || '未检测到种子对象，请确保图片中包含清晰的油菜籽样本，并重新拍摄。',
-        data: predictData
+        message: detectResult.message || '未检测到种子对象，请确保图片中包含清晰的油菜籽样本，并重新拍摄。',
+        data: recordData
       };
     }
-    
-    // 构造兼容原有格式的结果数据
+
+    // V1接口返回完整的记录数据，直接使用
     return {
       success: true,
       detected: true,
       data: {
-        id: Date.now().toString(), // 生成临时ID
-        protein: predictData.protein,
-        oil: predictData.oil,
-        message: predictData.message,
-        time_delta: predictData.time_delta,
-        // 添加其他可能需要的字段
-        res: {
-          protein: predictData.protein,
-          oil: predictData.oil
-        }
+        // 使用服务器返回的完整记录数据
+        id: recordData.id,
+        user_id: recordData.user_id,
+        image: recordData.image,
+        mod: recordData.mod,
+        type: recordData.type,
+        address: recordData.address,
+        planting_way: recordData.planting_way,
+        harvest_way: recordData.harvest_way,
+        batch_no: recordData.batch_no,
+        create_time: recordData.create_time,
+        update_time: recordData.update_time,
+        feedback: recordData.feedback,
+        // 检测结果
+        protein: detectResult.protein,
+        oil: detectResult.oil,
+        message: detectResult.message,
+        time_delta: detectResult.time_delta,
+        // 保持原有的res字段结构
+        res: detectResult
       }
     };
   },

@@ -11,11 +11,30 @@
 - **返回格式：**
   ```json
   {
-    "detected": false,           // 是否检测到种子对象
-    "protein": 0.0,             // 蛋白质含量（%）
-    "oil": 0.0,                 // 油脂含量（%）
-    "message": "未检测到种子对象", // 状态消息
-    "time_delta": 0.6551        // 总耗时（秒）
+    "code": 1,
+    "msg": "success",
+    "time": 1756087797,
+    "data": {
+      "user_id": 6,
+      "image": "https://...",
+      "mod": "FasterNet",
+      "type": "",
+      "address": "",
+      "planting_way": "",
+      "harvest_way": "",
+      "batch_no": "B20250825-004",
+      "create_time": 1756087799,
+      "update_time": 1756087799,
+      "res": {
+        "detected": true,           // 是否检测到种子对象
+        "protein": 26.78607749938965, // 蛋白质含量（%）
+        "oil": 39.34030532836914,   // 油脂含量（%）
+        "message": "检测和分析完成", // 状态消息
+        "time_delta": 1.481707      // 总耗时（秒）
+      },
+      "feedback": null,
+      "id": 430
+    }
   }
   ```
 

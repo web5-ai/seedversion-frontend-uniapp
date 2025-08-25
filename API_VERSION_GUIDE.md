@@ -18,11 +18,26 @@ SeedVision支持多个预测API版本，每个版本都有不同的特性和数�
 **数据格式：**
 ```json
 {
-  "detected": false,
-  "protein": 0.0,
-  "oil": 0.0,
-  "message": "未检测到种子对象",
-  "time_delta": 0.6551
+  "code": 1,
+  "msg": "success",
+  "time": 1756087797,
+  "data": {
+    "user_id": 6,
+    "image": "https://...",
+    "mod": "FasterNet",
+    "batch_no": "B20250825-004",
+    "create_time": 1756087799,
+    "update_time": 1756087799,
+    "res": {
+      "detected": true,
+      "protein": 26.786,
+      "oil": 39.340,
+      "message": "检测和分析完成",
+      "time_delta": 1.481707
+    },
+    "feedback": null,
+    "id": 430
+  }
 }
 ```
 
