@@ -84,6 +84,8 @@
 </template>
 
 <script>
+import { API_CONFIG, PredictDataProcessor } from '@/config/api.js';
+
 export default {
   data() {
     return {
@@ -155,7 +157,7 @@ export default {
       this.analyzing = true;
       // 嵌套请求，先上传文件，成功后再进行分析，避免顺序错误
       uni.uploadFile({
-        url: 'http://youcaihua-api.harmony-dev.com/api/ajax/upload', // 替换为你的API地址
+        url: API_CONFIG.getFullUrl(API_CONFIG.ENDPOINTS.UPLOAD), // 使用配置的上传接口
         filePath: this.imagePath, // 图片路径
         name: 'file', // 服务器端接收的字段名
         header: {
@@ -171,15 +173,15 @@ export default {
           console.log('Upload successful: ', res.data); // 打印服务器返回的数据
           this.imageUrl = res.data.data.file.url; // 保存图片URL
           console.log('从json中获取图片链接: ', this.imageUrl); // 打印服务器返回的数据
-          // api/seed/predict
+
+          // 使用新的API配置进行预测
           uni.request({
-            url: 'http://youcaihua-api.harmony-dev.com/api/seed/predict', // 替换为你的API地址
-            method: 'POST', // 使用POST方法
+            url: API_CONFIG.getCurrentPredictUrl(), // 使用配置的预测接口
+            method: 'POST',
             data: {
               'image': this.imageUrl,
-              'mod' : this.selectedModel
+              'mod': this.selectedModel
             },
-
             header: {
               Authorization: uni.getStorageSync('token'),
               Server: true
@@ -193,11 +195,42 @@ export default {
                   showCancel: false, // 隐藏取消按钮
                 })
                 uni.hideLoading(); // 隐藏加载提示
+                this.analyzing = false; // 重置分析状态
               }
               else {
                 console.log(res.data); // 打印服务器返回的数据
-                this.result = res.data.data
+
+                // 使用数据处理器处理返回数据
+                const processedResult = PredictDataProcessor.processData(res);
+
+                // 检查处理结果
+                if (!processedResult.success) {
+                  uni.hideLoading(); // 隐藏加载提示
+                  this.analyzing = false; // 重置分析状态
+                  uni.showModal({
+                    title: '检测提示',
+                    content: processedResult.message,
+                    showCancel: true,
+                    cancelText: '重新拍摄',
+                    confirmText: '确定',
+                    success: (modalRes) => {
+                      if (modalRes.cancel) {
+                        // 用户选择重新拍摄，返回上一页
+                        uni.navigateBack({
+                          delta: 1
+                        });
+                      }
+                      // 用户点击确定，留在当前页面
+                    }
+                  });
+                  return;
+                }
+
+                // 使用处理后的结果数据
+                this.result = processedResult.data;
+
                 uni.hideLoading(); // 隐藏加载提示
+                this.analyzing = false; // 重置分析状态
 
                 // 发送事件，通知首页添加新记录
                 uni.$emit('addDetectionRecord', this.result);
@@ -211,6 +244,12 @@ export default {
 
             fail: (err) => {
               console.error('Analysis failed:', err);
+              uni.hideLoading(); // 隐藏加载提示
+              this.analyzing = false; // 重置分析状态
+              uni.showToast({
+                title: '分析失败，请重试',
+                icon: 'none'
+              });
             }
 
           })
@@ -218,10 +257,14 @@ export default {
 
         fail: (err) => {
           console.error('Upload failed:', err); // 打印错误信息
+          uni.hideLoading(); // 隐藏加载提示
+          uni.showToast({
+            title: '图片上传失败，请重试',
+            icon: 'none'
+          });
+          this.analyzing = false;
         }
       })
-
-      this.analyzing = false;
 
     },
 
