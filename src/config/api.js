@@ -4,7 +4,7 @@ export const API_CONFIG = {
   BASE_URL: 'http://youcaihua-api.harmony-dev.com',
   
   // API版本配置
-  PREDICT_VERSION: 'V1', // 当前使用的预测API版本：V1 或 V2
+  PREDICT_VERSION: 'V2', // 当前使用的预测API版本：V1 或 V2
   
   // API端点
   ENDPOINTS: {
@@ -88,10 +88,10 @@ export const PredictDataProcessor = {
     };
   },
   
-  // 处理V2版本的返回数据
-  processV2Data(apiResponse) {
+  // 处理V2版本的返回数据，构造成V1格式
+  processV2Data(apiResponse, imageUrl = null) {
     const predictData = apiResponse.data.data;
-    
+
     // 检查是否检测到种子对象
     if (!predictData.detected) {
       return {
@@ -101,7 +101,7 @@ export const PredictDataProcessor = {
         data: predictData
       };
     }
-    
+
     // 检查是否有评估结果
     if (!predictData.evaluation_result) {
       return {
@@ -111,38 +111,50 @@ export const PredictDataProcessor = {
         data: predictData
       };
     }
-    
-    // 构造兼容原有格式的结果数据
-    return {
-      success: true,
-      detected: true,
-      data: {
-        id: Date.now().toString(), // 生成临时ID
+
+    // 构造V1格式的数据结构，让现有业务逻辑可以正常工作
+    const v1FormatData = {
+      id: Date.now().toString(), // 生成临时ID
+      user_id: null,
+      image: imageUrl, // 使用传入的图片URL
+      mod: null, // 模型信息
+      type: null,
+      address: null,
+      planting_way: null,
+      harvest_way: null,
+      batch_no: null,
+      create_time: Math.floor(Date.now() / 1000), // 当前时间戳
+      update_time: Math.floor(Date.now() / 1000),
+      feedback: null,
+      // V1格式的检测结果
+      res: {
+        detected: true,
         protein: predictData.evaluation_result.protein,
         oil: predictData.evaluation_result.oil,
         message: predictData.message,
         time_delta: predictData.total_time_delta,
+        // 保存V2的原始数据供调试使用
+        v2_detection_result: predictData.detection_result,
+        v2_evaluation_result: predictData.evaluation_result,
         model_name: predictData.model_name,
-        image_hash: predictData.image_hash,
-        // V2特有的详细信息
-        detection_result: predictData.detection_result,
-        evaluation_result: predictData.evaluation_result,
-        // 兼容原有格式
-        res: {
-          protein: predictData.evaluation_result.protein,
-          oil: predictData.evaluation_result.oil
-        }
+        image_hash: predictData.image_hash
       }
+    };
+
+    return {
+      success: true,
+      detected: true,
+      data: v1FormatData
     };
   },
   
   // 根据当前版本处理数据
-  processData(apiResponse) {
+  processData(apiResponse, imageUrl = null) {
     switch (API_CONFIG.PREDICT_VERSION) {
       case 'V1':
         return this.processV1Data(apiResponse);
       case 'V2':
-        return this.processV2Data(apiResponse);
+        return this.processV2Data(apiResponse, imageUrl);
       default:
         // 原始格式处理
         return {

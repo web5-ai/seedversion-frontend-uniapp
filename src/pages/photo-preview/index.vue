@@ -200,8 +200,8 @@ export default {
               else {
                 console.log(res.data); // 打印服务器返回的数据
 
-                // 使用数据处理器处理返回数据
-                const processedResult = PredictDataProcessor.processData(res);
+                // 使用数据处理器处理返回数据，传递图片URL
+                const processedResult = PredictDataProcessor.processData(res, this.imageUrl);
 
                 // 检查处理结果
                 if (!processedResult.success) {
