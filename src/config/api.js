@@ -2,20 +2,20 @@
 export const API_CONFIG = {
   // 基础URL
   BASE_URL: 'http://youcaihua-api.harmony-dev.com',
-  
+
   // API版本配置
-  PREDICT_VERSION: 'V2', // 当前使用的预测API版本：V1 或 V2
-  
+  PREDICT_VERSION: 'V1', // 当前使用的预测API版本：V1 或 V2
+
   // API端点
   ENDPOINTS: {
     // 文件上传
     UPLOAD: '/api/ajax/upload',
-    
+
     // 预测接口
     PREDICT_V1: '/api/seed/predictV1',
     PREDICT_V2: '/api/seed/predictV2',
     PREDICT_LEGACY: '/api/seed/predict', // 原始接口，保留作为备用
-    
+
     // 其他接口
     SEED_INDEX: '/api/seed/index',
     SEED_DETAIL: '/api/seed/detail',
@@ -23,7 +23,7 @@ export const API_CONFIG = {
     USER_INFO: '/api/user/info',
     USER_LOGIN: '/api/user/loginByPhone'
   },
-  
+
   // 获取当前预测接口URL
   getCurrentPredictUrl() {
     switch (this.PREDICT_VERSION) {
@@ -35,7 +35,7 @@ export const API_CONFIG = {
         return this.BASE_URL + this.ENDPOINTS.PREDICT_LEGACY;
     }
   },
-  
+
   // 获取完整URL
   getFullUrl(endpoint) {
     return this.BASE_URL + endpoint;
@@ -87,7 +87,7 @@ export const PredictDataProcessor = {
       }
     };
   },
-  
+
   // 处理V2版本的返回数据，构造成V1格式
   processV2Data(apiResponse, imageUrl = null) {
     const predictData = apiResponse.data.data;
@@ -147,7 +147,7 @@ export const PredictDataProcessor = {
       data: v1FormatData
     };
   },
-  
+
   // 根据当前版本处理数据
   processData(apiResponse, imageUrl = null) {
     switch (API_CONFIG.PREDICT_VERSION) {

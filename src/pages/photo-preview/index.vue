@@ -3,11 +3,7 @@
     <!-- 图片预览区域 -->
     <view class="preview-wrapper">
       <view class="preview-container">
-        <image
-          :src="imagePath"
-          mode="aspectFit"
-          class="preview-image"
-        />
+        <image :src="imagePath" mode="aspectFit" class="preview-image" />
         <!-- 检测中状态显示 -->
         <view v-if="analyzing" class="analyzing-overlay">
           <view class="analyzing-content">
@@ -60,24 +56,13 @@
     <!-- 操作按钮区域（悬浮） -->
     <view class="floating-action-container">
       <view class="action-buttons">
-        <button
-          class="action-button cancel-button"
-          @click="handleCancel"
-          :disabled="analyzing"
-        >{{ source === 'detail' ? '返回' : '取消' }}</button>
+        <button class="action-button cancel-button" @click="handleCancel" :disabled="analyzing">{{ source === 'detail' ?
+          '返回' : '取消' }}</button>
 
-        <button
-          v-if="!hasResult && source !== 'detail'"
-          class="action-button confirm-button"
-          @click="handleAnalyze"
-          :disabled="analyzing"
-        >开始分析</button>
+        <button v-if="!hasResult && source !== 'detail'" class="action-button confirm-button" @click="handleAnalyze"
+          :disabled="analyzing">开始分析</button>
 
-        <button
-          v-else-if="source !== 'detail'"
-          class="action-button confirm-button"
-          @click="handleSave"
-        >保存结果</button>
+        <button v-else-if="source !== 'detail'" class="action-button confirm-button" @click="handleSave">保存结果</button>
       </view>
     </view>
   </view>
@@ -98,7 +83,7 @@ export default {
       // 是否有检测结果
       hasResult: false,
       // 检测结果数据
-      result: { },
+      result: {},
       // 来源（camera-相机拍照，album-相册选择，detail-详情页，result-结果页）
       source: 'camera',
       // 记录ID
@@ -144,16 +129,16 @@ export default {
       return `${year}-${month}-${day}`;
     },
     onModelChange(e) {
-    // 更新当前选中的模型
-    this.selectedModel = this.models[e.detail.value];
+      // 更新当前选中的模型
+      this.selectedModel = this.models[e.detail.value];
     },
     // 开始分析图片
     handleAnalyze() {
 
       uni.showLoading({
-                  title: '正在分析...分析完成后跳转到结果页', // 加载提示
-                  mask: true // 显示透明蒙层，防止触摸穿透s
-                })
+        title: '正在分析...分析完成后跳转到结果页', // 加载提示
+        mask: true // 显示透明蒙层，防止触摸穿透s
+      })
       this.analyzing = true;
       // 嵌套请求，先上传文件，成功后再进行分析，避免顺序错误
       uni.uploadFile({
@@ -173,6 +158,10 @@ export default {
           console.log('Upload successful: ', res.data); // 打印服务器返回的数据
           this.imageUrl = res.data.data.file.url; // 保存图片URL
           console.log('从json中获取图片链接: ', this.imageUrl); // 打印服务器返回的数据
+
+          // 对图片链接进行HTML实体编码
+          this.imageUrl = this.imageUrl.replace(/&/g, '&amp;');
+          console.log('HTML实体编码后的图片链接: ', this.imageUrl);
 
           // 使用新的API配置进行预测
           uni.request({
@@ -325,7 +314,8 @@ export default {
   background-color: #f5f5f5;
   width: 100%;
   position: relative;
-  padding-bottom: 80px; /* 为悬浮按钮预留空间 */
+  padding-bottom: 80px;
+  /* 为悬浮按钮预留空间 */
 }
 
 /* 图片预览区域外层容器 */
@@ -482,9 +472,13 @@ export default {
 }
 
 @keyframes loading {
-  0%, 80%, 100% {
+
+  0%,
+  80%,
+  100% {
     transform: scale(0);
   }
+
   40% {
     transform: scale(1);
   }
